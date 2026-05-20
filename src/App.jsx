@@ -8,6 +8,7 @@ import React, {
   useReducer, createContext, useContext, memo,
 } from "react";
 import { supabase } from "./lib/supabase"
+import { AuthProvider } from "./context/AuthContext"
 // ─── THEME ───────────────────────────────────────────────────────────────────
 var T = Object.freeze({
   bg: "#080808", surface: "#111111", surface2: "#181818",
@@ -2936,12 +2937,14 @@ export default function App() {
   testSupabase()
 }, [])
 
-  return (
+ return (
+  <AuthProvider>
     <AppProvider>
       <div style={{ width: "100%", minHeight: "100vh", background: T.bg, fontFamily: "'DM Sans', sans-serif", color: T.text, position: "relative", overflowX: "hidden" }}>
         <style>{FONTS + GLOBAL_CSS}</style>
         <Router />
       </div>
-    </AppProvider>
+        </AppProvider>
+  </AuthProvider>
   );
 }
