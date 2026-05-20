@@ -2924,15 +2924,17 @@ function Router() {
 export default function App() {
 
   useEffect(() => {
-    async function testSupabase() {
-      const { data, error } = await supabase.auth.getSession()
+  async function testSupabase() {
+    const { data, error } = await supabase.auth.getSession()
 
-      console.log("DATA:", data)
-      console.log("ERROR:", error)
-    }
+    alert("SUPABASE FUNCIONOU")
 
-    testSupabase()
-  }, [])
+    console.log(data)
+    console.log(error)
+  }
+
+  testSupabase()
+}, [])
 
   return (
     <AppProvider>
