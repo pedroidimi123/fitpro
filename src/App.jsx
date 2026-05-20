@@ -3,7 +3,7 @@
 // New: XP/Levels, Daily Missions, North Star Goal, Post-Workout Celebration,
 //      Smart Daily Loop, Contextual Upsell, Enhanced AI Coach
 
-import {
+import React, {
   useState, useEffect, useRef, useMemo, useCallback,
   useReducer, createContext, useContext, memo,
 } from "react";
