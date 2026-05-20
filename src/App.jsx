@@ -7,7 +7,7 @@ import {
   useState, useEffect, useRef, useMemo, useCallback,
   useReducer, createContext, useContext, memo,
 } from "react";
-
+import { supabase } from "./lib/supabase"
 // ─── THEME ───────────────────────────────────────────────────────────────────
 var T = Object.freeze({
   bg: "#080808", surface: "#111111", surface2: "#181818",
@@ -2922,6 +2922,18 @@ function Router() {
 }
 
 export default function App() {
+
+  useEffect(() => {
+    async function testSupabase() {
+      const { data, error } = await supabase.auth.getSession()
+
+      console.log("DATA:", data)
+      console.log("ERROR:", error)
+    }
+
+    testSupabase()
+  }, [])
+
   return (
     <AppProvider>
       <div style={{ width: "100%", minHeight: "100vh", background: T.bg, fontFamily: "'DM Sans', sans-serif", color: T.text, position: "relative", overflowX: "hidden" }}>
@@ -2930,17 +2942,4 @@ export default function App() {
       </div>
     </AppProvider>
   );
-}import { supabase } from "./lib/supabase"
-import { useEffect } from "react"
-
-function App() {
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data, error }) => {
-      console.log(data, error)
-    })
-  }, [])
-
-  return <div>FitPro</div>
 }
-
-export default App
