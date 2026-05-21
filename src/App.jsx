@@ -742,7 +742,7 @@ function appReducer(state, action) {
         plan: action.plan || { type: "free" }, logs: action.logs || [],
         workout: action.workout || [], routine: action.routine || null,
         gami: action.gami || { xp: 0, lastXPDate: "", missionsDone: {} },
-        status: action.profile ? "install" : "onboard", screen: "home",
+        status: "onboard"
       });
     case "ONBOARD_DONE":
       return Object.assign({}, state, {
@@ -1630,6 +1630,8 @@ function OnboardingScreen() {
   var cur = steps[step];
 
   async function finish() {
+    console.log("FINISH CHAMOU");
+    console.log("DISPATCH ONBOARD_DONE");
     var level   = calcUserLevel(Number(f.days));
     var profile = { name: (user && user.name) || "", sex: f.sex, goal: f.goal, level: level, days: Number(f.days), weight: Number(f.weight), height: Number(f.height), age: Number(f.age), sessionMinutes: Number(f.sessionMinutes), updatedAt: new Date().toISOString() };
     var routine = (f.wakeUpTime || f.sportsToday || f.injuryNotes) ? { wakeUpTime: f.wakeUpTime, bedTime: f.bedTime, sleepHours: f.sleepHours ? Number(f.sleepHours) : 7, sportsToday: f.sportsToday, injuryNotes: f.injuryNotes, freeTimeStart: null, updatedAt: new Date().toISOString() } : null;
@@ -2894,21 +2896,20 @@ function AppProvider(props) {
 }
 function Router() {
 
-  console.log("ROUTER RENDERIZOU")
-
-  var appCtx   = useApp();
-  var status   = appCtx.status;
-
-  console.log("STATUS:", status)
-
-
+  var appCtx = useApp();
+  var status = appCtx.status;
+  var screen = appCtx.screen || "home";
   var dispatch = appCtx.dispatch;
-  var postWO   = appCtx.postWorkout;
+  var postWO = appCtx.postWorkout;
 
-var screen = appCtx.screen || "home";
-  var go = useCallback(function(s) { dispatch({ type: "SET_SCREEN", payload: s }); }, [dispatch]);
+  console.log("ROUTER RENDERIZOU");
+  console.log("STATUS:", status);
+  console.log("SCREEN:", screen);
 
-  if (status === "loading") return (
+  var go = useCallback(function(s) {
+    dispatch({ type: "SET_SCREEN", payload: s });
+  }, [dispatch]);
+  n (
     <div style={{ minHeight: "100vh", background: T.bg, display: "flex", alignItems: "center", justifyContent: "center" }}>
       <Col gap={16} style={{ alignItems: "center" }}>
         <div style={{ fontSize: 52 }}>🔥</div>
@@ -2942,7 +2943,7 @@ if (status === "install") {
     </>
   );
 }
-
+if (status === "loading") retur
 export default function App() {
 
   useEffect(() => {
