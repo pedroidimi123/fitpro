@@ -9,6 +9,7 @@ import React, {
 } from "react";
 import { supabase } from "./lib/supabase"
 import { AuthProvider } from "./context/AuthContext"
+import InstallScreen from "./screens/InstallScreen";
 // ─── THEME ───────────────────────────────────────────────────────────────────
 var T = Object.freeze({
   bg: "#080808", surface: "#111111", surface2: "#181818",
@@ -741,7 +742,7 @@ function appReducer(state, action) {
         plan: action.plan || { type: "free" }, logs: action.logs || [],
         workout: action.workout || [], routine: action.routine || null,
         gami: action.gami || { xp: 0, lastXPDate: "", missionsDone: {} },
-        status: action.profile ? "app" : "onboard", screen: "home",
+        status: action.profile ? "install" : "onboard", screen: "home",
       });
     case "ONBOARD_DONE":
       return Object.assign({}, state, {
@@ -2897,10 +2898,14 @@ function Router() {
 
   var appCtx   = useApp();
   var status   = appCtx.status;
-  var screen   = appCtx.screen;
+
+  console.log("STATUS:", status)
+
+
   var dispatch = appCtx.dispatch;
   var postWO   = appCtx.postWorkout;
 
+var screen = appCtx.screen || "home";
   var go = useCallback(function(s) { dispatch({ type: "SET_SCREEN", payload: s }); }, [dispatch]);
 
   if (status === "loading") return (
@@ -2915,7 +2920,9 @@ function Router() {
 
  if (status === "auth") return <AuthScreen />;
 if (status === "onboard") return <OnboardingScreen />;
-if (status === "install") return <InstallScreen />;
+if (status === "install") {
+  return <InstallScreen onClose={() => dispatch({ type: "SET_STATUS", payload: "app" })} />;
+}
   var noNav = ["checkin","checkout","postworkout"].indexOf(screen) !== -1;
 
   return (
