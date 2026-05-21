@@ -2879,8 +2879,10 @@ function AppProvider(props) {
   var value = useMemo(function() { return Object.assign({}, state, { dispatch: dispatch }); }, [state]);
   return React.createElement(AppCtx.Provider, { value: value }, props.children);
 }
-
 function Router() {
+
+  console.log("ROUTER RENDERIZOU")
+
   var appCtx   = useApp();
   var status   = appCtx.status;
   var screen   = appCtx.screen;
