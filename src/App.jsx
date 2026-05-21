@@ -747,7 +747,7 @@ function appReducer(state, action) {
       return Object.assign({}, state, {
         profile: action.profile, workout: action.workout,
         routine: action.routine || state.routine,
-        status: "app", screen: "home",
+        status: "install", screen: "home",
       });
     case "ROUTINE_UPDATED":
       return Object.assign({}, state, { routine: action.routine, workout: action.workout || state.workout });
@@ -1556,7 +1556,19 @@ function AuthScreen() {
     </div>
   );
 }
-
+function InstallScreen() {
+  return (
+    <div style={{
+      minHeight: "100vh",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      color: "white"
+    }}>
+      <h1>TELA INSTALL</h1>
+    </div>
+  )
+}
 // ─── SCREEN: ONBOARDING ───────────────────────────────────────────────────────
 var GOALS_LIST = [
   { k: "massa",           icon: "💪", label: "Ganhar Massa",    desc: "Hipertrofia e forca maxima" },
@@ -2901,9 +2913,9 @@ function Router() {
     </div>
   );
 
-  if (status === "auth")    return <AuthScreen />;
-  if (status === "onboard") return <OnboardingScreen />;
-
+ if (status === "auth") return <AuthScreen />;
+if (status === "onboard") return <OnboardingScreen />;
+if (status === "install") return <InstallScreen />;
   var noNav = ["checkin","checkout","postworkout"].indexOf(screen) !== -1;
 
   return (
