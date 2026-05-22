@@ -47,35 +47,54 @@ var MUSCLE_ICONS = Object.freeze({
 
 var EXERCISE_DB = Object.freeze({
   peito: [
-    ["Supino Reto","3x10","60s",2,"Peitoral maior","Deite no banco, pes no chao. Agarre a barra na largura dos ombros. Desca controlado ate o peito e empurre. Mantenha omoplatas retraidas.","https://www.youtube.com/watch?v=rT7DgCr-3pg"],
-    ["Supino Inclinado","3x12","60s",2,"Peitoral superior","Banco a 30-45 graus. Cotovelo a 75 graus do corpo. Foco no peitoral superior.","https://www.youtube.com/watch?v=DbFgADa2PL8"],
+    ["Supino Reto","4x10","60s",2,"Peitoral maior","Deite no banco, pes no chao. Agarre a barra na largura dos ombros. Desca controlado ate o peito e empurre. Mantenha omoplatas retraidas.","https://www.youtube.com/watch?v=rT7DgCr-3pg"],
+    ["Supino Inclinado","4x12","60s",2,"Peitoral superior","Banco a 30-45 graus. Cotovelo a 75 graus do corpo. Foco no peitoral superior.","https://www.youtube.com/watch?v=DbFgADa2PL8"],
     ["Crucifixo","3x12","45s",1,"Peitoral","Ligeiro cotovelo flexionado. Amplitude controlada. Sinta o alongamento.","https://www.youtube.com/watch?v=eozdVDA78K0"],
     ["Flexao","3x15","45s",1,"Peitoral e triceps","Maos alinhadas com o peito. Corpo reto. Desca ate quase tocar o chao.",""],
     ["Peck Deck","3x12","45s",1,"Peitoral","Cotovelos na almofada. Junte lentamente. Segure 1s no pico.",""],
+    ["Supino Declinado","3x10","60s",2,"Peitoral inferior","Banco declinado. Pegada neutra. Foca na parte inferior do peito.",""],
+    ["Crossover","3x15","45s",1,"Peitoral interno","Polia alta. Traga as maos ao centro com arco. Controle a descida.",""],
+    ["Flexao Diamante","3x12","30s",2,"Peitoral e triceps","Maos formando diamante. Cotovelos proximos ao corpo. Foco no triceps e peito central.",""],
   ],
   costas: [
     ["Puxada Frontal","4x10","60s",2,"Dorsais","Pegada pronada larga. Puxe ate o queixo. Ative o dorsal, nao o biceps.","https://www.youtube.com/watch?v=CAwf7n6Luuc"],
     ["Remada Curvada","4x10","60s",2,"Dorsais e trapezio","Quadril para tras, lombar neutra. Puxe ate o umbigo.","https://www.youtube.com/watch?v=G8l_8chR5BE"],
     ["Remada Unilateral","3x12","45s",1,"Dorsal","Apoio no banco. Puxe o cotovelo para tras e para cima.",""],
     ["Pull-up","3x8","90s",3,"Dorsais e biceps","Pegada pronada. Puxe ate o queixo acima da barra. Desca completamente.",""],
+    ["Remada Cavalinho","4x10","60s",2,"Dorsais","Pegada supinada. Incline o tronco. Puxe ate o abdomen.",""],
+    ["Puxada Neutra","3x12","60s",1,"Dorsais","Pegada neutra paralela. Cotovelos apontam para baixo. Amplitude total.",""],
+    ["Hiperextensao","3x15","30s",1,"Lombar e gluteos","No aparelho especifico. Suba ate o corpo ficar reto. Controle.",""],
+    ["Serrote","3x12","45s",1,"Dorsal serrátil","Apoio no banco. Puxe o haltere ate a cintura. Rotacao do tronco minima.",""],
   ],
   ombro: [
     ["Desenvolvimento","4x10","60s",2,"Deltoide","Barra na clavicula. Pressione acima da cabeca. Nao incline para tras.",""],
     ["Elevacao Lateral","3x15","45s",1,"Deltoide lateral","Leve flexao no cotovelo. Eleve ate a altura do ombro.",""],
     ["Elevacao Frontal","3x12","45s",1,"Deltoide anterior","Eleve ate a altura dos ombros. Alternar ou simultaneo.",""],
     ["Face Pull","3x15","45s",1,"Deltoide posterior","Polia alta. Puxe ate a altura do rosto com rotacao externa.",""],
+    ["Desenvolvimento Arnold","3x12","60s",2,"Deltoide completo","Comece com as palmas viradas para voce. Rotacione ao subir.",""],
+    ["Elevacao Lateral na Polia","3x15","45s",1,"Deltoide lateral","Polia baixa. Tensao constante. Mais isolado que haltere.",""],
+    ["Desenvolvimento com Halteres","4x10","60s",1,"Deltoide","Sentado ou em pe. Amplitude completa. Controle a descida.",""],
+    ["Shrug Trapezio","3x15","45s",1,"Trapezio","Ombros em linha reta acima das orelhas. Pausa no topo.",""],
   ],
   biceps: [
     ["Rosca Direta","3x12","45s",1,"Biceps","Cotovelos fixos. Supinacao no topo. Nao balance o tronco.",""],
     ["Rosca Alternada","3x12","45s",1,"Biceps","Alterne os bracos. Supine o punho durante a subida.",""],
     ["Rosca Martelo","3x10","45s",1,"Biceps braquial","Pegada neutra. Trabalha cabeca longa do biceps.",""],
     ["Rosca Concentrada","3x12","30s",1,"Biceps","Cotovelo apoiado na coxa. Maxima amplitude e isolamento.",""],
+    ["Rosca 21","3x21","60s",2,"Biceps completo","7 reps na metade inferior + 7 na superior + 7 completas.",""],
+    ["Rosca Scott","3x12","45s",2,"Biceps cabeca curta","Banco scott. Amplitude completa. Nao solte embaixo.",""],
+    ["Rosca na Polia","3x15","45s",1,"Biceps","Tensao constante. Ideal para finalizar o grupo.",""],
+    ["Rosca Inclinada","3x10","45s",2,"Biceps cabeca longa","Banco inclinado. Maior amplitude e alongamento.",""],
   ],
   triceps: [
     ["Triceps Pulley","4x12","45s",1,"Triceps","Cotovelos fixos. Puxe ate bracos paralelos ao corpo.",""],
     ["Triceps Testa","3x12","45s",2,"Triceps cabeca longa","Deite no banco. Desca a barra ate a testa. Cotovelos fixos.",""],
     ["Mergulho","3x10","60s",2,"Triceps e peitoral","Desca ate 90 graus. Corpo levemente inclinado para triceps.",""],
     ["Triceps Corda","3x15","45s",1,"Triceps","Abra a corda na parte inferior. Extensao completa.",""],
+    ["Triceps Coice","3x12","30s",1,"Triceps","Tronco paralelo ao chao. Estenda o braco completamente.",""],
+    ["Triceps Franches","3x12","45s",2,"Triceps cabeca longa","Pegada pronada. Desca atras da cabeca. Cotovelos estabilizados.",""],
+    ["Extensao Unilateral","3x12","45s",1,"Triceps","Polia alta. Um braco de cada vez. Foco e isolamento.",""],
+    ["Triceps no Banco","3x15","30s",1,"Triceps","Maos no banco atras. Desca com cotovelos flexionados.",""],
   ],
   pernas: [
     ["Agachamento Livre","4x10","90s",3,"Quadriceps e gluteos","Pes na largura dos ombros. Desca ate coxa paralela. Lombar neutra.",""],
@@ -84,18 +103,30 @@ var EXERCISE_DB = Object.freeze({
     ["Mesa Flexora","3x12","45s",1,"Isquiotibiais","Quadril fixo. Flexione ate 90 graus. Desca controlado.",""],
     ["Stiff","3x12","60s",2,"Isquiotibiais","Pernas quase estendidas. Quadril para tras. Lombar neutra.",""],
     ["Afundo","3x12","45s",2,"Quadriceps e gluteos","Passo largo. Joelho nao passa a ponta do pe.",""],
+    ["Agachamento Bulgaro","3x10","60s",2,"Quadriceps e gluteos","Pe traseiro elevado. Desça com controle. Tronco ereto.",""],
+    ["Panturrilha em Pe","4x20","30s",1,"Panturrilha","Amplitude maxima. Pausa no topo. Desça ate sentir o alongamento.",""],
+    ["Leg Press 45 Graus","4x12","60s",2,"Quadriceps e gluteos","Pes altos trabalham mais gluteos. Pes baixos enfatizam quads.",""],
+    ["Hack Squat","3x12","60s",2,"Quadriceps","Costas apoiadas. Pes a frente. Amplitude completa.",""],
   ],
   core: [
     ["Prancha","3x45s","30s",1,"Core completo","Cotovelos sob ombros. Corpo reto. Contraia o abdomen.",""],
     ["Abdominal Crunch","3x20","30s",1,"Reto abdominal","Maos atras da cabeca. Suba usando o abdomen.",""],
     ["Elevacao de Pernas","3x15","30s",2,"Abdomen inferior","Pernas retas, eleve ate 90 graus. Lombar no chao.",""],
     ["Russian Twist","3x20","30s",1,"Obliquos","Rotacao de lado a lado. Com ou sem peso.",""],
+    ["Prancha Lateral","3x30s","30s",1,"Obliquos","Apoio no cotovelo e pe. Quadril elevado. Corpo alinhado.",""],
+    ["Dead Bug","3x12","30s",1,"Core profundo","Costas no chao. Estenda braco e perna opostos. Controle.",""],
+    ["Bicicleta Abdominal","3x20","30s",1,"Reto e obliquos","Cotovelo ao joelho oposto. Alternar com controle.",""],
+    ["Hollow Body","3x20s","30s",2,"Core completo","Costas planas no chao. Bracos e pernas elevados. Tensao total.",""],
   ],
   cardio: [
     ["Esteira Moderada","20min","--",1,"Cardiovascular","Velocidade 7-9 km/h. FC entre 60-70% da maxima.",""],
     ["HIIT","15min","--",3,"Cardiovascular","30s intenso / 30s recuperacao. FC acima de 85% nos tiros.",""],
     ["Bicicleta","20min","--",1,"Cardiovascular","Resistencia moderada. Cadencia 80-100 rpm.",""],
     ["Corda","15min","--",2,"Cardiovascular","Series de 2-3 min com 30s de descanso.",""],
+    ["Remo Ergometro","15min","--",2,"Cardiovascular e costas","Ritmo constante. Foco na tração com as pernas.",""],
+    ["Escada","10min","--",2,"Cardiovascular e pernas","Step machine ou escadaria. Cadencia moderada a alta.",""],
+    ["Burpee","3x10","60s",3,"Cardiovascular e corpo total","Explosao na subida. Agachamento completo. Sem parar.",""],
+    ["Mountain Climber","3x30s","30s",2,"Core e cardiovascular","Cotovelos sob ombros. Joelhos ao peito alternados. Velocidade.",""],
   ],
 });
 
@@ -239,10 +270,13 @@ function levelToXpNeededForNext(level) {
 
 // XP within the current level (0..xpForNext)
 function xpInCurrentLevel(totalXP) {
-  var lvl = xpToLevel(totalXP);
-  var base = levelToXpNeeded(lvl);
+  var safeXP = Math.max(0, totalXP || 0);
+  var lvl  = xpToLevel(safeXP);
+  var base = lvl === 1 ? 0 : levelToXpNeeded(lvl);
   var next = levelToXpNeededForNext(lvl);
-  return { current: totalXP - base, total: next - base, pct: Math.min(100, Math.round(((totalXP - base) / (next - base)) * 100)) };
+  var span = Math.max(1, next - base);
+  var cur  = Math.max(0, safeXP - base);
+  return { current: cur, total: span, pct: Math.min(100, Math.round((cur / span) * 100)) };
 }
 
 // Level names
@@ -455,7 +489,7 @@ function generateWorkout(profile, recentLogs, routine) {
   var hasLegSport = LEG_SPORTS.some(function(s) { return sportsToday.indexOf(s) !== -1; });
   var sleepHours  = routine && routine.sleepHours ? Number(routine.sleepHours) : 7;
 
-  var exPerGroup  = sessionMinutes <= 30 ? 1 : sessionMinutes <= 60 ? 2 : 3;
+  var exPerGroup  = sessionMinutes <= 30 ? 2 : sessionMinutes <= 45 ? 3 : sessionMinutes <= 60 ? 4 : 5;
   var levelMultMap = { "Iniciante": 0.8, "Intermediario": 1.0, "Avancado": 1.2 };
   var levelMult   = levelMultMap[level] || 1.0;
   var factor      = Math.min(Math.max(levelMult * getIntensityFactor(recentLogs, sleepHours), 0.55), 1.4);
@@ -742,7 +776,7 @@ function appReducer(state, action) {
         plan: action.plan || { type: "free" }, logs: action.logs || [],
         workout: action.workout || [], routine: action.routine || null,
         gami: action.gami || { xp: 0, lastXPDate: "", missionsDone: {} },
-        status: "onboard"
+        status: action.profile ? "app" : "onboard"
       });
     case "ONBOARD_DONE":
       return Object.assign({}, state, {
