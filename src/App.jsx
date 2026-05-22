@@ -1557,19 +1557,7 @@ function AuthScreen() {
     </div>
   );
 }
-function InstallScreen() {
-  return (
-    <div style={{
-      minHeight: "100vh",
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      color: "white"
-    }}>
-      <h1>TELA INSTALL</h1>
-    </div>
-  )
-}
+
 // ─── SCREEN: ONBOARDING ───────────────────────────────────────────────────────
 var GOALS_LIST = [
   { k: "massa",           icon: "💪", label: "Ganhar Massa",    desc: "Hipertrofia e forca maxima" },
