@@ -2950,7 +2950,7 @@ export default function App() {
   async function testSupabase() {
     const { data, error } = await supabase.auth.getSession()
 
-    alert("SUPABASE FUNCIONOU")
+  
 
     console.log(data)
     console.log(error)
