@@ -2930,15 +2930,16 @@ if (status === "install") {
       {!noNav && <Nav screen={screen} go={go} />}
     </>
   );
+export default function App() {
 
- return (
-  <AuthProvider>
-    <AppProvider>
-      <div style={{ width: "100%", minHeight: "100vh", background: T.bg, fontFamily: "'DM Sans', sans-serif", color: T.text, position: "relative", overflowX: "hidden" }}>
-        <style>{FONTS + GLOBAL_CSS}</style>
-        <Router />
-      </div>
-        </AppProvider>
-  </AuthProvider>
+  return (
+    <AuthProvider>
+      <AppProvider>
+        <div style={{ width: "100%", minHeight: "100vh", background: T.bg, fontFamily: "'DM Sans', sans-serif", color: T.text, position: "relative", overflowX: "hidden" }}>
+          <style>{FONTS + GLOBAL_CSS}</style>
+          <Router />
+        </div>
+      </AppProvider>
+    </AuthProvider>
   );
 }
