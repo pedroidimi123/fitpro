@@ -2942,22 +2942,6 @@ if (status === "install") {
       {!noNav && <Nav screen={screen} go={go} />}
     </>
   );
-}
-if (status === "loading") retur
-export default function App() {
-
-  useEffect(() => {
-  async function testSupabase() {
-    const { data, error } = await supabase.auth.getSession()
-
-  
-
-    console.log(data)
-    console.log(error)
-  }
-
-  testSupabase()
-}, [])
 
  return (
   <AuthProvider>
