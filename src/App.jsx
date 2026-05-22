@@ -2890,14 +2890,15 @@ function Router() {
   var dispatch = appCtx.dispatch;
   var postWO = appCtx.postWorkout;
 
-  console.log("ROUTER RENDERIZOU");
-  console.log("STATUS:", status);
-  console.log("SCREEN:", screen);
-}
   var go = useCallback(function(s) {
     dispatch({ type: "SET_SCREEN", payload: s });
   }, [dispatch]);
-  n (
+
+  console.log("ROUTER RENDERIZOU");
+  console.log("STATUS:", status);
+  console.log("SCREEN:", screen);
+
+  if (status === "loading") return (
     <div style={{ minHeight: "100vh", background: T.bg, display: "flex", alignItems: "center", justifyContent: "center" }}>
       <Col gap={16} style={{ alignItems: "center" }}>
         <div style={{ fontSize: 52 }}>🔥</div>
@@ -2907,11 +2908,12 @@ function Router() {
     </div>
   );
 
- if (status === "auth") return <AuthScreen />;
-if (status === "onboard") return <OnboardingScreen />;
-if (status === "install") {
-  return <InstallScreen onClose={() => dispatch({ type: "SET_STATUS", payload: "app" })} />;
-}
+  if (status === "auth") return <AuthScreen />;
+  if (status === "onboard") return <OnboardingScreen />;
+  if (status === "install") {
+    return <InstallScreen onClose={() => dispatch({ type: "SET_STATUS", payload: "app" })} />;
+  }
+
   var noNav = ["checkin","checkout","postworkout"].indexOf(screen) !== -1;
 
   return (
@@ -2930,6 +2932,8 @@ if (status === "install") {
       {!noNav && <Nav screen={screen} go={go} />}
     </>
   );
+}
+
 export default function App() {
 
   return (
