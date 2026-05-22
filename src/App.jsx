@@ -2893,7 +2893,7 @@ function Router() {
   console.log("ROUTER RENDERIZOU");
   console.log("STATUS:", status);
   console.log("SCREEN:", screen);
-
+}
   var go = useCallback(function(s) {
     dispatch({ type: "SET_SCREEN", payload: s });
   }, [dispatch]);
