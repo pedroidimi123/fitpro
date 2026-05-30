@@ -12,15 +12,28 @@ import { AuthProvider } from "./context/AuthContext"
 import InstallScreen from "./screens/InstallScreen";
 // ─── THEME ───────────────────────────────────────────────────────────────────
 var T = Object.freeze({
-  bg: "#080808", surface: "#111111", surface2: "#181818",
-  border: "#1f1f1f", border2: "#2a2a2a",
-  orange: "#F97316", orangeHi: "#FB923C", orangeLo: "#7C3B0D", orangeGl: "#F9731615",
-  text: "#F5F5F5", text2: "#A0A0A0", text3: "#555555",
-  green: "#22C55E", red: "#EF4444", blue: "#3B82F6", yellow: "#EAB308",
-  purple: "#A855F7", purpleGl: "#A855F715",
+  bg:       "#0A0A0B",
+  surface:  "#18181C",
+  surface2: "#1F1F25",
+  border:   "rgba(255,255,255,0.07)",
+  border2:  "rgba(255,255,255,0.12)",
+  orange:   "#FF6B1A",
+  orangeHi: "#FF8C45",
+  orangeLo: "#2A1200",
+  orangeGl: "rgba(255,107,26,0.09)",
+  orangeGl2:"rgba(255,107,26,0.15)",
+  text:     "#F0EDE8",
+  text2:    "#8A8790",
+  text3:    "#4A4852",
+  green:    "#2ECC8A",
+  red:      "#FF4554",
+  blue:     "#4B9EFF",
+  yellow:   "#F5C842",
+  purple:   "#8B5CF6",
+  purpleGl: "rgba(139,92,246,0.1)",
 });
 
-var FONTS = "@import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=DM+Sans:wght@400;500;600&display=swap');";
+var FONTS = "@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=DM+Sans:wght@400;500;600&display=swap');";
 
 var GLOBAL_CSS = "\n" +
   "* { box-sizing: border-box; margin: 0; padding: 0; }\n" +
@@ -30,14 +43,15 @@ var GLOBAL_CSS = "\n" +
   "::-webkit-scrollbar { width: 0; height: 0; }\n" +
   "::placeholder { color: " + T.text3 + "; }\n" +
   "@keyframes bounce { 0%,80%,100% { transform: translateY(0); } 40% { transform: translateY(-6px); } }\n" +
-  "@keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }\n" +
+  "@keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }\n" +
   "@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }\n" +
   "@keyframes shimmer { 0% { background-position: -400px 0; } 100% { background-position: 400px 0; } }\n" +
-  "@keyframes scaleIn { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }\n" +
-  "@keyframes xpPop { 0% { opacity: 0; transform: translateY(0) scale(0.8); } 40% { opacity: 1; transform: translateY(-16px) scale(1.1); } 100% { opacity: 0; transform: translateY(-40px) scale(1); } }\n" +
+  "@keyframes scaleIn { from { opacity: 0; transform: scale(0.93); } to { opacity: 1; transform: scale(1); } }\n" +
+  "@keyframes xpPop { 0% { opacity: 0; transform: translateX(-50%) translateY(0) scale(0.8); } 40% { opacity: 1; transform: translateX(-50%) translateY(-18px) scale(1.1); } 100% { opacity: 0; transform: translateX(-50%) translateY(-44px) scale(1); } }\n" +
   "@keyframes streakPulse { 0%,100% { box-shadow: 0 0 0 0 " + T.orange + "44; } 50% { box-shadow: 0 0 0 8px " + T.orange + "00; } }\n" +
   "@keyframes barFill { from { width: 0%; } to { width: var(--bar-w); } }\n" +
-  "@keyframes celebIn { 0% { opacity: 0; transform: scale(0.85) translateY(20px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }\n";
+  "@keyframes celebIn { 0% { opacity: 0; transform: scale(0.85) translateY(20px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }\n" +
+  ".display { font-family: 'Barlow Condensed', sans-serif !important; }\n";
 
 // ─── EXERCISE DATA ────────────────────────────────────────────────────────────
 var MUSCLE_ICONS = Object.freeze({
@@ -962,21 +976,38 @@ var Col = memo(function Col(props) {
 
 var Card = memo(function Card(props) {
   var _h = useState(false); var hov = _h[0]; var setHov = _h[1];
-  var border = props.glow ? T.orange + "55" : (props.accent ? props.accent + "55" : (hov && props.onClick ? T.border2 : T.border));
-  var shadow = props.glow ? "0 0 32px " + T.orange + "1A" : (props.accent ? "0 0 24px " + props.accent + "14" : "none");
+  var glowColor = props.accent || T.orange;
+  var border = props.glow
+    ? glowColor + "44"
+    : (props.accent ? props.accent + "44" : (hov && props.onClick ? T.border2 : T.border));
+  var shadow = props.glow
+    ? "0 0 0 1px " + glowColor + "22, 0 8px 32px " + glowColor + "14"
+    : "none";
+  var topLine = props.glow
+    ? "linear-gradient(90deg, transparent 5%, " + glowColor + " 50%, transparent 95%)"
+    : "none";
   return (
     <div
       onClick={props.onClick}
       onMouseEnter={function() { setHov(true); }}
       onMouseLeave={function() { setHov(false); }}
       style={Object.assign({
-        background: T.surface, border: "1px solid " + border, borderRadius: 18,
+        background: T.surface,
+        border: "1px solid " + border,
+        borderRadius: 18,
         padding: props.pad !== undefined ? props.pad : 18,
-        boxShadow: shadow, cursor: props.onClick ? "pointer" : "default",
-        transition: "border-color 0.2s, box-shadow 0.2s",
+        boxShadow: shadow,
+        cursor: props.onClick ? "pointer" : "default",
+        transition: "border-color 0.2s, box-shadow 0.2s, transform 0.15s",
+        transform: hov && props.onClick ? "translateY(-1px)" : "translateY(0)",
         animation: props.animate !== false ? "fadeUp 0.22s ease" : "none",
+        position: "relative",
+        overflow: "hidden",
       }, props.style || {})}
     >
+      {props.glow && (
+        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "1px", background: topLine, opacity: 0.6, pointerEvents: "none" }} />
+      )}
       {props.children}
     </div>
   );
@@ -984,15 +1015,15 @@ var Card = memo(function Card(props) {
 
 var Btn = memo(function Btn(props) {
   var _p = useState(false); var press = _p[0]; var setPress = _p[1];
-  var PAD  = { sm: "9px 14px", md: "13px 22px", lg: "16px 28px" };
-  var FS   = { sm: 12, md: 15, lg: 16 };
+  var PAD  = { sm: "9px 16px", md: "13px 22px", lg: "15px 28px" };
+  var FS   = { sm: 12, md: 14, lg: 15 };
   var VARS = {
-    fill:   { background: "linear-gradient(135deg," + T.orange + "," + T.orangeHi + ")", color: "#fff", border: "none" },
-    ghost:  { background: "transparent", color: T.orange, border: "1px solid " + T.orange + "55" },
-    dim:    { background: T.surface2, color: T.text2, border: "1px solid " + T.border2 },
-    danger: { background: T.red + "22", color: T.red, border: "1px solid " + T.red + "44" },
-    green:  { background: T.green + "22", color: T.green, border: "1px solid " + T.green + "44" },
-    purple: { background: "linear-gradient(135deg," + T.purple + "," + T.purple + "cc)", color: "#fff", border: "none" },
+    fill:   { background: "linear-gradient(135deg," + T.orange + " 0%," + T.orangeHi + " 100%)", color: "#fff", border: "none", boxShadow: "0 4px 16px rgba(255,107,26,0.3)" },
+    ghost:  { background: T.orangeGl, color: T.orange, border: "1px solid rgba(255,107,26,0.25)", boxShadow: "none" },
+    dim:    { background: T.surface2, color: T.text2, border: "1px solid " + T.border2, boxShadow: "none" },
+    danger: { background: T.red + "18", color: T.red, border: "1px solid " + T.red + "33", boxShadow: "none" },
+    green:  { background: T.green + "14", color: T.green, border: "1px solid " + T.green + "33", boxShadow: "none" },
+    purple: { background: "linear-gradient(135deg," + T.purple + " 0%,#6D28D9 100%)", color: "#fff", border: "none", boxShadow: "0 4px 16px rgba(139,92,246,0.3)" },
   };
   var isDisabled = props.disabled || props.loading;
   var base = VARS[props.variant] || VARS.fill;
@@ -1003,17 +1034,21 @@ var Btn = memo(function Btn(props) {
       onMouseUp={function() { setPress(false); }}
       onMouseLeave={function() { setPress(false); }}
       style={Object.assign({}, base, {
-        padding: PAD[props.size] || PAD.md, fontSize: FS[props.size] || FS.md,
-        fontWeight: 700, borderRadius: 14, cursor: isDisabled ? "not-allowed" : "pointer",
-        opacity: isDisabled ? 0.45 : (press ? 0.85 : 1),
-        transform: press && !isDisabled ? "scale(0.98)" : "scale(1)",
-        transition: "opacity 0.15s, transform 0.15s",
+        padding: PAD[props.size] || PAD.md,
+        fontSize: FS[props.size] || FS.md,
+        fontWeight: 700,
+        letterSpacing: "0.01em",
+        borderRadius: 13,
+        cursor: isDisabled ? "not-allowed" : "pointer",
+        opacity: isDisabled ? 0.4 : 1,
+        transform: press && !isDisabled ? "scale(0.97)" : "scale(1)",
+        transition: "opacity 0.15s, transform 0.15s, box-shadow 0.2s",
         width: props.full ? "100%" : "auto",
         display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
       }, props.style || {})}
     >
       {props.loading && (
-        <span style={{ width: 14, height: 14, border: "2px solid #fff4", borderTopColor: "#fff", borderRadius: "50%", animation: "spin 0.6s linear infinite", flexShrink: 0 }} />
+        <span style={{ width: 14, height: 14, border: "2px solid rgba(255,255,255,0.25)", borderTopColor: "#fff", borderRadius: "50%", animation: "spin 0.6s linear infinite", flexShrink: 0 }} />
       )}
       {props.children}
     </button>
@@ -1025,23 +1060,24 @@ function FInput(props) {
   var baseStyle = Object.assign({
     width: "100%", boxSizing: "border-box",
     background: focus ? T.surface2 : T.surface,
-    border: "1px solid " + (focus ? T.orange + "88" : T.border2),
+    border: "1px solid " + (focus ? T.orange + "66" : T.border2),
     borderRadius: 13, color: T.text, fontSize: 15, outline: "none",
-    transition: "background 0.2s, border-color 0.2s",
-    padding: "14px " + (props.suffix ? "48px" : "16px") + " 14px " + (props.icon ? "42px" : "16px"),
+    transition: "background 0.18s, border-color 0.18s",
+    padding: "13px " + (props.suffix ? "48px" : "16px") + " 13px " + (props.icon ? "44px" : "16px"),
+    fontFamily: "'DM Sans', sans-serif",
   }, props.style || {});
   return (
-    <Col gap={6}>
-      {props.label && <span style={{ fontSize: 11, color: T.text2, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" }}>{props.label}</span>}
+    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+      {props.label && <span style={{ fontSize: 10, color: T.text2, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase" }}>{props.label}</span>}
       <div style={{ position: "relative" }}>
-        {props.icon && <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", fontSize: 16 }}>{props.icon}</span>}
+        {props.icon && <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", fontSize: 16, pointerEvents: "none" }}>{props.icon}</span>}
         {props.multiline
-          ? <textarea rows={props.rows || 3} value={props.value} onChange={function(e) { props.onChange(e.target.value); }} placeholder={props.placeholder} onFocus={function() { setFocus(true); }} onBlur={function() { setFocus(false); }} style={Object.assign({}, baseStyle, { resize: "none", lineHeight: 1.5 })} />
+          ? <textarea rows={props.rows || 3} value={props.value} onChange={function(e) { props.onChange(e.target.value); }} placeholder={props.placeholder} onFocus={function() { setFocus(true); }} onBlur={function() { setFocus(false); }} style={Object.assign({}, baseStyle, { resize: "none", lineHeight: 1.55 })} />
           : <input type={props.type || "text"} value={props.value} onChange={function(e) { props.onChange(e.target.value); }} placeholder={props.placeholder} onFocus={function() { setFocus(true); }} onBlur={function() { setFocus(false); }} style={baseStyle} />
         }
-        {props.suffix && <span style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", color: T.text2, fontSize: 13, fontWeight: 600 }}>{props.suffix}</span>}
+        {props.suffix && <span style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", color: T.text3, fontSize: 12, fontWeight: 600, pointerEvents: "none" }}>{props.suffix}</span>}
       </div>
-    </Col>
+    </div>
   );
 }
 
@@ -1057,8 +1093,8 @@ var FTag = memo(function FTag(props) {
 var Bar = memo(function Bar(props) {
   var pct = Math.min(((props.value || 0) / (props.max || 100)) * 100, 100);
   return (
-    <div style={{ background: T.border2, borderRadius: 99, height: props.thin ? 4 : 7, overflow: "hidden" }}>
-      <div style={{ width: pct + "%", height: "100%", background: "linear-gradient(90deg," + (props.color || T.orange) + "," + (props.color || T.orange) + "cc)", borderRadius: 99, transition: "width 0.5s ease" }} />
+    <div style={{ background: "rgba(255,255,255,0.06)", borderRadius: 99, height: props.thin ? 4 : 6, overflow: "hidden" }}>
+      <div style={{ width: pct + "%", height: "100%", background: "linear-gradient(90deg," + (props.color || T.orange) + "," + (props.color || T.orange) + "cc)", borderRadius: 99, transition: "width 0.55s ease" }} />
     </div>
   );
 });
@@ -1080,23 +1116,23 @@ var XPBar = memo(function XPBar(props) {
   return (
     <div style={{ background: T.surface, border: "1px solid " + T.border, borderRadius: 14, padding: "12px 16px" }}>
       <Row justify="space-between" style={{ marginBottom: 8 }}>
-        <Row gap={8}>
-          <div style={{ width: 32, height: 32, borderRadius: 8, background: "linear-gradient(135deg," + T.purple + ",#7c3aed)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 900, color: "#fff", flexShrink: 0 }}>
+        <Row gap={10}>
+          <div style={{ width: 34, height: 34, borderRadius: 9, background: "linear-gradient(135deg," + T.purple + ",#6D28D9)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Barlow Condensed',sans-serif", fontSize: 17, fontWeight: 900, color: "#fff", flexShrink: 0, boxShadow: "0 3px 12px rgba(139,92,246,0.35)" }}>
             {lvl}
           </div>
           <Col gap={1}>
             <span style={{ fontSize: 14, fontWeight: 700, color: T.text }}>{title}</span>
-            <span style={{ fontSize: 10, color: T.text2 }}>Nivel {lvl} / XP: {xp}</span>
+            <span style={{ fontSize: 10, color: T.text3 }}>Nível {lvl} · {xp} XP</span>
           </Col>
         </Row>
-        <span style={{ fontSize: 11, color: T.text2, fontWeight: 600 }}>{prog.current}/{prog.total} XP</span>
+        <span style={{ fontSize: 11, color: T.text3, fontWeight: 600, alignSelf: "center" }}>{prog.current}/{prog.total} XP</span>
       </Row>
-      <div style={{ background: T.border2, borderRadius: 99, height: 6, overflow: "hidden" }}>
-        <div style={{ width: prog.pct + "%", height: "100%", background: "linear-gradient(90deg," + T.purple + ",#a78bfa)", borderRadius: 99, transition: "width 0.8s ease" }} />
+      <div style={{ background: "rgba(255,255,255,0.06)", borderRadius: 99, height: 5, overflow: "hidden" }}>
+        <div style={{ width: prog.pct + "%", height: "100%", background: "linear-gradient(90deg," + T.purple + ",#A78BFA)", borderRadius: 99, transition: "width 0.8s ease" }} />
       </div>
       <Row justify="space-between" style={{ marginTop: 5 }}>
-        <span style={{ fontSize: 10, color: T.text3 }}>Nivel {lvl}</span>
-        <span style={{ fontSize: 10, color: T.purple, fontWeight: 600 }}>+{prog.total - prog.current} XP para nivel {lvl + 1}</span>
+        <span style={{ fontSize: 9, color: T.text3, fontWeight: 600 }}>Nível {lvl}</span>
+        <span style={{ fontSize: 9, color: T.text3, fontWeight: 600 }}>{prog.pct}% · {prog.total - prog.current} XP para nível {lvl + 1}</span>
       </Row>
     </div>
   );
@@ -1142,7 +1178,7 @@ var GoalJourneyBar = memo(function GoalJourneyBar(props) {
             {progress.estWeeksLeft > 0 ? " — ~" + progress.estWeeksLeft + " sem restantes" : ""}
           </span>
         </Col>
-        <div style={{ fontFamily: "'Syne',sans-serif", fontSize: 24, fontWeight: 900, color: pct >= 50 ? T.green : T.orange }}>
+        <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 24, fontWeight: 900, color: pct >= 50 ? T.green : T.orange }}>
           {pct}%
         </div>
       </Row>
@@ -1283,7 +1319,7 @@ function SelectGrid(props) {
         var sel = props.value === opt.value;
         return (
           <div key={opt.value} onClick={function() { props.onSelect(opt.value); }} style={{ padding: "20px 0", textAlign: "center", border: "2px solid " + (sel ? T.orange : T.border2), borderRadius: 16, cursor: "pointer", background: sel ? T.orangeGl : T.surface, transition: "border-color 0.2s, background 0.2s" }}>
-            <div style={{ fontFamily: "'Syne',sans-serif", fontSize: 26, fontWeight: 900, color: sel ? T.orange : T.text }}>{opt.value}</div>
+            <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 26, fontWeight: 900, color: sel ? T.orange : T.text }}>{opt.value}</div>
             <span style={{ fontSize: 11, color: T.text2 }}>{opt.label}</span>
           </div>
         );
@@ -1297,7 +1333,7 @@ var StatCard = memo(function StatCard(props) {
   return (
     <Card animate={false} style={{ padding: 16, textAlign: "center" }}>
       {props.icon && <div style={{ fontSize: 20, marginBottom: 4 }}>{props.icon}</div>}
-      <div style={{ fontFamily: "'Syne',sans-serif", fontSize: 26, fontWeight: 900, color: color }}>{props.value}</div>
+      <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 26, fontWeight: 900, color: color }}>{props.value}</div>
       <p style={{ fontSize: 11, color: T.text2, marginTop: 4 }}>{props.label}</p>
     </Card>
   );
@@ -1335,30 +1371,33 @@ var ProgressRow = memo(function ProgressRow(props) {
 var ExerciseCard = memo(function ExerciseCard(props) {
   var ex   = props.exercise;
   var diffColors = [T.green, T.yellow, T.red];
-  var diffLabels = ["Facil", "Medio", "Dificil"];
-  var diffColor  = diffColors[(ex.difficulty || 1) - 1] || T.text2;
+  var diffLabels = ["Fácil", "Médio", "Difícil"];
+  var diffColor  = diffColors[(ex.difficulty || 1) - 1] || T.text3;
   var diffLabel  = diffLabels[(ex.difficulty || 1) - 1] || "--";
   return (
-    <Card onClick={props.onToggle} style={{ padding: 16 }} animate={false}>
+    <Card onClick={props.onToggle} style={{ padding: 15 }} animate={false}>
       <Row justify="space-between" align="center">
-        <Row gap={10}>
-          <span style={{ fontSize: 22 }}>{ex.icon}</span>
-          <Col gap={2}>
+        <Row gap={12}>
+          <span style={{ fontSize: 22, flexShrink: 0 }}>{ex.icon}</span>
+          <Col gap={3}>
             <span style={{ fontSize: 14, fontWeight: 700, color: T.text }}>{ex.name}</span>
-            <Row gap={6}><FTag color={T.text3}>{ex.muscle || ex.group}</FTag><FTag color={diffColor}>{diffLabel}</FTag></Row>
+            <Row gap={6}>
+              <span style={{ background: "rgba(255,255,255,0.06)", border: "1px solid " + T.border2, borderRadius: 99, padding: "2px 8px", fontSize: 9, fontWeight: 700, color: T.text3, textTransform: "uppercase", letterSpacing: "0.06em" }}>{ex.muscle || ex.group}</span>
+              <span style={{ background: diffColor + "14", border: "1px solid " + diffColor + "33", borderRadius: 99, padding: "2px 8px", fontSize: 9, fontWeight: 700, color: diffColor, textTransform: "uppercase", letterSpacing: "0.06em" }}>{diffLabel}</span>
+            </Row>
           </Col>
         </Row>
-        <Col gap={2} style={{ textAlign: "right", flexShrink: 0 }}>
-          <span style={{ fontSize: 15, fontWeight: 900, color: T.orange }}>{ex.sets}</span>
-          <span style={{ fontSize: 11, color: T.text2 }}>desc {ex.rest}</span>
+        <Col gap={1} style={{ textAlign: "right", flexShrink: 0 }}>
+          <span style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 20, fontWeight: 900, color: T.orange, lineHeight: 1 }}>{ex.sets}</span>
+          <span style={{ fontSize: 10, color: T.text3 }}>desc {ex.rest}</span>
         </Col>
       </Row>
       {props.expanded && (
-        <div style={{ marginTop: 14, paddingTop: 14, borderTop: "1px solid " + T.border, animation: "fadeUp 0.2s ease" }}>
+        <div style={{ marginTop: 13, paddingTop: 13, borderTop: "1px solid " + T.border, animation: "fadeUp 0.18s ease" }}>
           <p style={{ fontSize: 12, color: T.text2, lineHeight: 1.65, marginBottom: ex.videoUrl ? 10 : 0 }}>{ex.instructions}</p>
           {ex.videoUrl && (
-            <a href={ex.videoUrl} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 6, color: T.orange, fontSize: 12, fontWeight: 700, textDecoration: "none", background: T.orangeGl, padding: "6px 12px", borderRadius: 10, border: "1px solid " + T.orange + "33" }} onClick={function(e) { e.stopPropagation(); }}>
-              Ver demonstracao
+            <a href={ex.videoUrl} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 6, color: T.orange, fontSize: 12, fontWeight: 700, textDecoration: "none", background: T.orangeGl, padding: "6px 12px", borderRadius: 9, border: "1px solid rgba(255,107,26,0.22)" }} onClick={function(e) { e.stopPropagation(); }}>
+              Ver demonstração ↗
             </a>
           )}
         </div>
@@ -1369,11 +1408,11 @@ var ExerciseCard = memo(function ExerciseCard(props) {
 
 var ScreenHeader = memo(function ScreenHeader(props) {
   return (
-    <div style={{ padding: "52px 20px 20px", borderBottom: "1px solid " + T.border }}>
+    <div style={{ padding: "52px 20px 18px", borderBottom: "1px solid " + T.border, background: "linear-gradient(180deg, rgba(255,107,26,0.04) 0%, transparent 100%)" }}>
       <Row justify="space-between" align="flex-start">
-        <Col gap={4}>
-          <div style={{ fontFamily: "'Syne',sans-serif", fontSize: 24, fontWeight: 900, color: T.text }}>{props.title}</div>
-          {props.subtitle && <span style={{ fontSize: 13, color: T.text2 }}>{props.subtitle}</span>}
+        <Col gap={3}>
+          <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 26, fontWeight: 800, color: T.text, letterSpacing: "-0.01em", lineHeight: 1 }}>{props.title}</div>
+          {props.subtitle && <span style={{ fontSize: 12, color: T.text3, marginTop: 2 }}>{props.subtitle}</span>}
         </Col>
         {props.right && <div>{props.right}</div>}
       </Row>
@@ -1404,13 +1443,14 @@ var LoadingDots = memo(function LoadingDots() {
 
 var Nav = memo(function Nav(props) {
   return (
-    <div style={{ position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 430, background: T.surface, borderTop: "1px solid " + T.border, display: "flex", paddingTop: 8, paddingBottom: 16, zIndex: 100 }}>
+    <div style={{ position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 430, background: T.surface, borderTop: "1px solid " + T.border, display: "flex", paddingTop: 10, paddingBottom: 20, zIndex: 100 }}>
       {NAV_ITEMS.map(function(item) {
         var active = props.screen === item.id;
         return (
-          <div key={item.id} onClick={function() { props.go(item.id); }} style={{ flex: 1, textAlign: "center", cursor: "pointer", opacity: active ? 1 : 0.4, transition: "opacity 0.2s" }}>
-            <div style={{ fontSize: 20 }}>{item.icon}</div>
-            <span style={{ display: "block", fontSize: 9, color: active ? T.orange : T.text2, fontWeight: 700, marginTop: 2, letterSpacing: "0.05em" }}>{item.label.toUpperCase()}</span>
+          <div key={item.id} onClick={function() { props.go(item.id); }} style={{ flex: 1, textAlign: "center", cursor: "pointer", transition: "opacity 0.2s" }}>
+            <div style={{ fontSize: 20, marginBottom: 3, filter: active ? "none" : "grayscale(100%)", opacity: active ? 1 : 0.35, transition: "filter 0.2s, opacity 0.2s" }}>{item.icon}</div>
+            <span style={{ display: "block", fontSize: 9, color: active ? T.orange : T.text3, fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase", transition: "color 0.2s" }}>{item.label}</span>
+            {active && <div style={{ width: 16, height: 2, background: T.orange, borderRadius: 1, margin: "3px auto 0", boxShadow: "0 0 6px " + T.orange + "88" }} />}
           </div>
         );
       })}
@@ -1454,7 +1494,7 @@ function PostWorkoutScreen(props) {
       </div>
 
       {/* Title */}
-      <div style={{ fontFamily: "'Syne',sans-serif", fontSize: 28, fontWeight: 900, color: T.text, marginBottom: 6 }}>
+      <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 28, fontWeight: 900, color: T.text, marginBottom: 6 }}>
         {data.isNewRecord ? "Novo recorde!" : streak >= 7 ? "Sequencia de fogo!" : streak >= 3 ? "Arrasou!" : "Treino concluido!"}
       </div>
 
@@ -1467,7 +1507,7 @@ function PostWorkoutScreen(props) {
       {/* Stats row */}
       <Row gap={12} justify="center" style={{ marginBottom: 20 }}>
         <div style={{ background: T.surface, border: "1px solid " + T.border, borderRadius: 12, padding: "12px 18px", textAlign: "center" }}>
-          <div style={{ fontSize: 22, fontWeight: 900, color: T.orange, fontFamily: "'Syne',sans-serif" }}>{streak}</div>
+          <div style={{ fontSize: 22, fontWeight: 900, color: T.orange, fontFamily: "'Barlow Condensed',sans-serif" }}>{streak}</div>
           <span style={{ fontSize: 10, color: T.text2 }}>treinos feitos</span>
         </div>
         {streak >= 7 && (
@@ -1557,35 +1597,36 @@ function AuthScreen() {
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: T.bg, display: "flex", flexDirection: "column", justifyContent: "center", padding: "40px 24px" }}>
-      <div style={{ textAlign: "center", marginBottom: 40 }}>
-        <div style={{ fontSize: 52 }}>🔥</div>
-        <div style={{ fontFamily: "'Syne',sans-serif", fontSize: 38, fontWeight: 900, color: T.text, letterSpacing: -1, marginTop: 4 }}>
+    <div style={{ minHeight: "100vh", background: T.bg, display: "flex", flexDirection: "column", justifyContent: "center", padding: "40px 24px", position: "relative", overflow: "hidden" }}>
+      <div style={{ position: "absolute", top: -120, left: "50%", transform: "translateX(-50%)", width: 400, height: 400, background: "radial-gradient(circle, rgba(255,107,26,0.08) 0%, transparent 65%)", pointerEvents: "none" }} />
+      <div style={{ textAlign: "center", marginBottom: 44 }}>
+        <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 64, height: 64, background: "linear-gradient(135deg," + T.orange + "," + T.orangeHi + ")", borderRadius: 18, fontSize: 28, marginBottom: 16, boxShadow: "0 8px 32px rgba(255,107,26,0.35)" }}>⚡</div>
+        <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 44, fontWeight: 900, color: T.text, letterSpacing: -1, lineHeight: 1 }}>
           FIT<span style={{ color: T.orange }}>PRO</span>
         </div>
-        <p style={{ fontSize: 14, color: T.text2, marginTop: 4 }}>Evolua todo dia. Sinta a diferenca.</p>
+        <p style={{ fontSize: 13, color: T.text3, marginTop: 6, fontWeight: 500, letterSpacing: "0.04em" }}>TREINE HOJE · SUPERE AMANHÃ</p>
       </div>
-      <div style={{ display: "flex", background: T.surface, borderRadius: 14, padding: 4, marginBottom: 28 }}>
+      <div style={{ display: "flex", background: T.surface, borderRadius: 13, padding: 4, marginBottom: 28, border: "1px solid " + T.border }}>
         {["login","register"].map(function(m) {
           return (
-            <div key={m} onClick={function() { switchMode(m); }} style={{ flex: 1, textAlign: "center", padding: "10px 0", background: mode === m ? T.orange : "transparent", borderRadius: 11, cursor: "pointer", transition: "background 0.2s", color: mode === m ? "#fff" : T.text2, fontWeight: 700, fontSize: 14 }}>
+            <div key={m} onClick={function() { switchMode(m); }} style={{ flex: 1, textAlign: "center", padding: "11px 0", background: mode === m ? T.orange : "transparent", borderRadius: 10, cursor: "pointer", transition: "background 0.2s", color: mode === m ? "#fff" : T.text3, fontWeight: 700, fontSize: 14, letterSpacing: "0.01em" }}>
               {m === "login" ? "Entrar" : "Cadastrar"}
             </div>
           );
         })}
       </div>
       <Col gap={14}>
-        {mode === "register" && <FInput label="Nome completo" value={name} onChange={setName} placeholder="Joao Silva" icon="👤" />}
+        {mode === "register" && <FInput label="Nome completo" value={name} onChange={setName} placeholder="João Silva" icon="👤" />}
         <FInput label="E-mail" value={email} onChange={setEmail} type="email" placeholder="joao@email.com" icon="✉️" />
         <FInput label="Senha"  value={pass}  onChange={setPass}  type="password" placeholder="••••••••" icon="🔒" />
         {err && <p style={{ fontSize: 13, color: T.red, textAlign: "center" }}>{err}</p>}
         <Btn onPress={submit} disabled={loading} loading={loading} full size="lg" style={{ marginTop: 8 }}>
-          {mode === "login" ? "Entrar na conta" : "Criar conta gratis"}
+          {mode === "login" ? "Entrar na conta" : "Criar conta grátis"}
         </Btn>
       </Col>
       {mode === "register" && (
         <p style={{ fontSize: 11, color: T.text3, textAlign: "center", marginTop: 16, lineHeight: 1.7 }}>
-          Ao criar conta voce concorda com os Termos de Uso e Politica de Privacidade.
+          Ao criar conta você concorda com os Termos de Uso e Política de Privacidade.
         </p>
       )}
     </div>
@@ -1675,7 +1716,7 @@ function OnboardingScreen() {
         {steps.map(function(_, i) { return <div key={i} style={{ flex: 1, height: 4, borderRadius: 4, background: i <= step ? T.orange : T.border2, transition: "background 0.3s" }} />; })}
       </Row>
       <div style={{ fontSize: 40, marginBottom: 8 }}>{cur.emoji}</div>
-      <div style={{ fontFamily: "'Syne',sans-serif", fontSize: 26, fontWeight: 900, color: T.text, marginBottom: 6 }}>{cur.title}</div>
+      <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 26, fontWeight: 900, color: T.text, marginBottom: 6 }}>{cur.title}</div>
       <p style={{ fontSize: 12, color: T.text3, marginBottom: 28 }}>Passo {step + 1} de {steps.length}</p>
       <div style={{ flex: 1 }}>{cur.content}</div>
       <Row gap={10} style={{ marginTop: 32 }}>
@@ -1704,7 +1745,7 @@ function PaywallScreen(props) {
       {props.onBack && <button onClick={props.onBack} style={{ background: "none", border: "none", color: T.orange, fontWeight: 700, fontSize: 15, cursor: "pointer", marginBottom: 20, padding: 0 }}>Voltar</button>}
       <div style={{ textAlign: "center", marginBottom: 28 }}>
         <div style={{ fontSize: 40 }}>💎</div>
-        <div style={{ fontFamily: "'Syne',sans-serif", fontSize: 26, fontWeight: 900, color: T.text, marginTop: 8 }}>
+        <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 26, fontWeight: 900, color: T.text, marginTop: 8 }}>
           Escolha seu <span style={{ color: T.orange }}>Plano</span>
         </div>
         <p style={{ fontSize: 13, color: T.text2, marginTop: 4 }}>7 dias gratis — Cancele quando quiser</p>
@@ -1787,7 +1828,7 @@ function CheckoutScreen() {
   if (phase === "success") return (
     <div style={{ minHeight: "100vh", background: T.bg, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 32, textAlign: "center", animation: "scaleIn 0.3s ease" }}>
       <div style={{ width: 80, height: 80, borderRadius: "50%", background: "linear-gradient(135deg," + T.green + ",#16A34A)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 36, marginBottom: 24, boxShadow: "0 0 40px " + T.green + "44" }}>✓</div>
-      <div style={{ fontFamily: "'Syne',sans-serif", fontSize: 28, fontWeight: 900, color: T.text, marginBottom: 8 }}>Bem-vindo ao Pro!</div>
+      <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 28, fontWeight: 900, color: T.text, marginBottom: 8 }}>Bem-vindo ao Pro!</div>
       <p style={{ fontSize: 15, color: T.text2 }}>7 dias gratis ativados. Aproveite tudo!</p>
     </div>
   );
@@ -1796,7 +1837,7 @@ function CheckoutScreen() {
     <div style={{ minHeight: "100vh", background: T.bg, overflowY: "auto", paddingBottom: 40 }}>
       <div style={{ padding: "52px 20px 20px", borderBottom: "1px solid " + T.border }}>
         <button onClick={function() { dispatch({ type: "CHECKOUT_CANCEL" }); }} style={{ background: "none", border: "none", color: T.orange, fontWeight: 700, fontSize: 15, cursor: "pointer", marginBottom: 16, padding: 0 }}>Voltar aos planos</button>
-        <div style={{ fontFamily: "'Syne',sans-serif", fontSize: 22, fontWeight: 900, color: T.text }}>Finalizar Assinatura</div>
+        <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 22, fontWeight: 900, color: T.text }}>Finalizar Assinatura</div>
         <p style={{ fontSize: 13, color: T.text2 }}>{checkout.planName} — {checkout.price}</p>
       </div>
       <div style={{ padding: "20px 20px 0" }}>
@@ -1873,39 +1914,40 @@ function HomeScreen(props) {
       <XPPopup xp={XP_MISSION_DONE} visible={xpPop} />
 
       {/* Hero header */}
-      <div style={{ padding: "52px 20px 20px", background: "linear-gradient(180deg,#1c0d00 0%," + T.bg + " 100%)", borderBottom: "1px solid " + T.border }}>
-        <Row justify="space-between" align="flex-start">
+      <div style={{ padding: "52px 20px 20px", background: "linear-gradient(180deg, rgba(255,107,26,0.07) 0%, rgba(255,107,26,0.02) 60%, " + T.bg + " 100%)", borderBottom: "1px solid " + T.border, position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", top: -80, right: -80, width: 280, height: 280, background: "radial-gradient(circle, rgba(255,107,26,0.1) 0%, transparent 70%)", pointerEvents: "none" }} />
+        <Row justify="space-between" align="flex-start" style={{ marginBottom: 18 }}>
           <Col gap={2}>
-            <span style={{ fontSize: 12, color: T.text2, textTransform: "capitalize" }}>{fmt.dateLabel()}</span>
-            <div style={{ fontFamily: "'Syne',sans-serif", fontSize: 24, fontWeight: 900, color: T.text }}>
-              Ola, {fmt.firstName(user && user.name)}!
+            <span style={{ fontSize: 11, color: T.text3, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" }}>{fmt.dateLabel()}</span>
+            <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 28, fontWeight: 800, color: T.text, lineHeight: 1, letterSpacing: "-0.01em" }}>
+              Olá, {fmt.firstName(user && user.name)} 👊
             </div>
           </Col>
-          <FTag color={isPro ? T.orange : T.text3}>{isPro ? "PRO" : "FREE"}</FTag>
+          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <FTag color={isPro ? T.orange : T.text3}>{isPro ? "PRO" : "FREE"}</FTag>
+          </div>
         </Row>
 
         {/* Streak + Level row */}
-        <Row gap={10} style={{ marginTop: 16 }}>
+        <Row gap={8} style={{ marginBottom: 14 }}>
           <StreakBadge count={streak} />
-          <div style={{ flex: 1, background: T.surface, border: "1px solid " + T.border, borderRadius: 12, padding: "10px 12px" }}>
+          <div style={{ flex: 1, background: T.surface, border: "1px solid " + T.border, borderRadius: 13, padding: "10px 12px" }}>
             <Row gap={8} align="center">
-              <div style={{ width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg," + T.purple + ",#7c3aed)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 900, color: "#fff" }}>{lvl}</div>
+              <div style={{ width: 30, height: 30, borderRadius: 8, background: "linear-gradient(135deg," + T.purple + ",#6D28D9)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Barlow Condensed',sans-serif", fontSize: 16, fontWeight: 900, color: "#fff", boxShadow: "0 2px 10px rgba(139,92,246,0.35)", flexShrink: 0 }}>{lvl}</div>
               <Col gap={1}>
                 <span style={{ fontSize: 12, fontWeight: 700, color: T.text }}>{getLevelTitle(lvl)}</span>
-                <span style={{ fontSize: 9, color: T.text2 }}>{xp} XP total</span>
+                <span style={{ fontSize: 9, color: T.text3, fontWeight: 500 }}>{xp} XP total</span>
               </Col>
             </Row>
           </div>
-          <div style={{ flex: 1, background: T.surface, border: "1px solid " + T.border, borderRadius: 12, padding: "10px 12px", textAlign: "center" }}>
-            <div style={{ fontFamily: "'Syne',sans-serif", fontSize: 13, fontWeight: 900, color: T.orange }}>{goalProgress.pct}%</div>
-            <span style={{ fontSize: 9, color: T.text2 }}>da meta</span>
+          <div style={{ background: T.surface, border: "1px solid " + T.border, borderRadius: 13, padding: "10px 14px", textAlign: "center", minWidth: 60 }}>
+            <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 18, fontWeight: 900, color: T.orange, lineHeight: 1 }}>{goalProgress.pct}%</div>
+            <span style={{ fontSize: 9, color: T.text3, fontWeight: 500 }}>da meta</span>
           </div>
         </Row>
 
         {/* XP bar compact */}
-        <div style={{ marginTop: 12 }}>
-          <XPBar xp={xp} />
-        </div>
+        <XPBar xp={xp} />
       </div>
 
       <div style={{ padding: "16px 20px 0" }}>
@@ -1932,25 +1974,26 @@ function HomeScreen(props) {
         {/* TODAY'S WORKOUT — main CTA */}
         {todayWorkout ? (
           <>
-            <p style={{ fontSize: 11, color: T.text3, fontWeight: 700, letterSpacing: "0.08em", marginBottom: 10 }}>TREINO DE HOJE</p>
-            <div onClick={function() { go("workout"); }} style={{ background: todayLog && todayLog.completed ? T.surface : "linear-gradient(135deg," + T.orangeLo + " 0%," + T.surface + " 100%)", border: "1px solid " + (todayLog && todayLog.completed ? T.border : T.orange + "44"), borderRadius: 18, padding: 18, cursor: "pointer", marginBottom: 16, boxShadow: todayLog && todayLog.completed ? "none" : "0 0 24px " + T.orange + "14", transition: "all 0.2s" }}>
+            <p style={{ fontSize: 10, color: T.text3, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 10 }}>Treino de Hoje</p>
+            <div onClick={function() { go("workout"); }} style={{ background: todayLog && todayLog.completed ? T.surface : "linear-gradient(135deg, rgba(255,107,26,0.12) 0%, rgba(255,107,26,0.04) 100%)", border: "1px solid " + (todayLog && todayLog.completed ? T.border : "rgba(255,107,26,0.28)"), borderRadius: 18, padding: 18, cursor: "pointer", marginBottom: 16, boxShadow: todayLog && todayLog.completed ? "none" : "0 4px 24px rgba(255,107,26,0.1)", transition: "all 0.2s", position: "relative", overflow: "hidden" }}>
+              {!todayLog && <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "1px", background: "linear-gradient(90deg, transparent 5%, " + T.orange + " 50%, transparent 95%)", opacity: 0.5 }} />}
               {(todayWorkout.adaptedFor || todayWorkout.sleepAlert) && (
-                <div style={{ background: T.blue + "11", border: "1px solid " + T.blue + "22", borderRadius: 10, padding: "5px 10px", marginBottom: 10 }}>
+                <div style={{ background: T.blue + "14", border: "1px solid " + T.blue + "22", borderRadius: 10, padding: "5px 10px", marginBottom: 10 }}>
                   <span style={{ fontSize: 11, color: T.blue }}>{todayWorkout.adaptedFor || todayWorkout.sleepAlert}</span>
                 </div>
               )}
-              <Row justify="space-between" align="center" style={{ marginBottom: 12 }}>
+              <Row justify="space-between" align="center" style={{ marginBottom: 14 }}>
                 <Col gap={4}>
-                  <span style={{ fontSize: 17, fontWeight: 800, color: todayLog && todayLog.completed ? T.text2 : T.orange }}>{todayWorkout.name}</span>
-                  <span style={{ fontSize: 12, color: T.text2 }}>{todayWorkout.exercises.length} exercicios — ~{todayWorkout.duration}min</span>
+                  <span style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 20, fontWeight: 800, color: todayLog && todayLog.completed ? T.text2 : T.text, letterSpacing: "-0.01em" }}>{todayWorkout.name}</span>
+                  <span style={{ fontSize: 11, color: T.text3 }}>{todayWorkout.exercises.length} exercícios · ~{todayWorkout.duration}min</span>
                 </Col>
-                <div style={{ width: 44, height: 44, borderRadius: 12, background: todayLog && todayLog.completed ? T.border2 : T.orange, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, color: "#fff" }}>
+                <div style={{ width: 46, height: 46, borderRadius: 13, background: todayLog && todayLog.completed ? T.border2 : "linear-gradient(135deg," + T.orange + "," + T.orangeHi + ")", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, color: "#fff", boxShadow: todayLog && todayLog.completed ? "none" : "0 4px 14px rgba(255,107,26,0.35)", flexShrink: 0 }}>
                   {todayLog && todayLog.completed ? "✓" : "▶"}
                 </div>
               </Row>
               <Bar value={todayLog && todayLog.completed ? 100 : 0} />
               <Row justify="space-between" style={{ marginTop: 8 }}>
-                <span style={{ fontSize: 11, color: T.text2 }}>{todayLog && todayLog.completed ? "Concluido! Excelente trabalho." : "Toque para comecar"}</span>
+                <span style={{ fontSize: 11, color: T.text3 }}>{todayLog && todayLog.completed ? "Concluído! Excelente trabalho." : "Toque para começar"}</span>
                 {!todayLog && <span style={{ fontSize: 11, color: T.orange, fontWeight: 700 }}>+{XP_WORKOUT_COMPLETE} XP</span>}
               </Row>
             </div>
@@ -2342,7 +2385,7 @@ function NutritionScreen(props) {
           <Col gap={12}>
             <Card glow>
               <p style={{ fontSize: 11, color: T.text2, fontWeight: 700, letterSpacing: "0.08em", marginBottom: 12 }}>META CALORICA DIARIA</p>
-              <div style={{ fontFamily: "'Syne',sans-serif", fontSize: 44, fontWeight: 900, color: T.orange }}>{nut.calories}</div>
+              <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 44, fontWeight: 900, color: T.orange }}>{nut.calories}</div>
               <span style={{ fontSize: 13, color: T.text2 }}>kcal/dia — {(profile && profile.weight) || "--"}kg</span>
             </Card>
             {isPro ? MACRO_CFG.map(function(m) {
@@ -2382,7 +2425,7 @@ function NutritionScreen(props) {
           <Col gap={12}>
             <Card glow>
               <p style={{ fontSize: 11, color: T.blue, fontWeight: 700, letterSpacing: "0.08em", marginBottom: 12 }}>META DIARIA</p>
-              <Row gap={8} align="baseline"><div style={{ fontFamily: "'Syne',sans-serif", fontSize: 52, fontWeight: 900, color: T.blue }}>{nut.water}</div><span style={{ fontSize: 18, color: T.text2 }}>litros</span></Row>
+              <Row gap={8} align="baseline"><div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 52, fontWeight: 900, color: T.blue }}>{nut.water}</div><span style={{ fontSize: 18, color: T.text2 }}>litros</span></Row>
               <p style={{ fontSize: 12, color: T.text2, marginTop: 4 }}>{Math.round(nut.water * 1000 / 250)} copos — {(profile && profile.weight) || "--"}kg</p>
             </Card>
             {WATER_SCHED.map(function(entry) {
@@ -2628,7 +2671,7 @@ function CheckinScreen(props) {
 
   return (
     <div style={{ minHeight: "100vh", background: T.bg, padding: "52px 24px 32px", display: "flex", flexDirection: "column" }}>
-      <div style={{ fontFamily: "'Syne',sans-serif", fontSize: 24, fontWeight: 900, color: T.text, marginBottom: 4 }}>Check-in Diario</div>
+      <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 24, fontWeight: 900, color: T.text, marginBottom: 4 }}>Check-in Diario</div>
       <p style={{ fontSize: 13, color: T.text2, marginBottom: 28 }}>Como foi hoje?</p>
 
       <Col gap={22} style={{ flex: 1 }}>
@@ -2837,7 +2880,7 @@ function SettingsScreen(props) {
       <div style={{ padding: "20px 20px 0" }}>
         <Card glow style={{ marginBottom: 20 }} animate={false}>
           <Row gap={14}>
-            <div style={{ width: 52, height: 52, borderRadius: "50%", background: "linear-gradient(135deg," + T.orange + "," + T.orangeLo + ")", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Syne',sans-serif", fontSize: 22, fontWeight: 900, color: "#fff" }}>
+            <div style={{ width: 52, height: 52, borderRadius: "50%", background: "linear-gradient(135deg," + T.orange + "," + T.orangeLo + ")", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Barlow Condensed',sans-serif", fontSize: 22, fontWeight: 900, color: "#fff" }}>
               {((user && user.name) || "?")[0].toUpperCase()}
             </div>
             <Col gap={3}>
@@ -2935,8 +2978,8 @@ function Router() {
   if (status === "loading") return (
     <div style={{ minHeight: "100vh", background: T.bg, display: "flex", alignItems: "center", justifyContent: "center" }}>
       <Col gap={16} style={{ alignItems: "center" }}>
-        <div style={{ fontSize: 52 }}>🔥</div>
-        <div style={{ fontFamily: "'Syne',sans-serif", fontSize: 28, fontWeight: 900, color: T.text }}>FIT<span style={{ color: T.orange }}>PRO</span></div>
+        <div style={{ width: 68, height: 68, background: "linear-gradient(135deg," + T.orange + "," + T.orangeHi + ")", borderRadius: 18, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 30, boxShadow: "0 8px 32px rgba(255,107,26,0.4)", animation: "scaleIn 0.3s ease" }}>⚡</div>
+        <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 32, fontWeight: 900, color: T.text, letterSpacing: -1 }}>FIT<span style={{ color: T.orange }}>PRO</span></div>
         <SkeletonCard />
       </Col>
     </div>
