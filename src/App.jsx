@@ -1906,7 +1906,7 @@ function CheckoutScreen() {
   );
 }
 
-// ─── SCREEN: HOME (upgraded v7) ───────────────────────────────────────────────
+// ─── SCREEN: HOME (v8 — Premium Redesign) ────────────────────────────────────
 function HomeScreen(props) {
   var go     = props.go;
   var appCtx = useApp();
@@ -1927,15 +1927,9 @@ function HomeScreen(props) {
   var dateKey      = new Date().toDateString();
   var todayLog     = useMemo(function() { return logs.find(function(l) { return l.date === dateKey; }); }, [logs]);
   var bestTime     = useMemo(function() { return calcBestWorkoutTime(routine); }, [routine]);
-
-  // Daily missions state
-  var missions = useMemo(function() { return generateDailyMissions(profile, logs); }, [profile, logs]);
+  var missions     = useMemo(function() { return generateDailyMissions(profile, logs); }, [profile, logs]);
   var missionsDoneToday = (gami && gami.missionsDone) || {};
-
-  // Dynamic daily message
-  var dailyMsg = useMemo(function() { return getDailyMessage(profile, logs, workout, todayWorkout); }, [profile, logs, workout, todayWorkout]);
-
-  // XP popup state
+  var dailyMsg     = useMemo(function() { return getDailyMessage(profile, logs, workout, todayWorkout); }, [profile, logs, workout, todayWorkout]);
   var _xpPop = useState(false); var xpPop = _xpPop[0]; var setXpPop = _xpPop[1];
 
   function completeMission(mId) {
@@ -1946,204 +1940,311 @@ function HomeScreen(props) {
     if (appCtx.user) DB.saveGamification(appCtx.user.id, Object.assign({}, gami, { xp: (gami.xp || 0) + XP_MISSION_DONE, missionsDone: Object.assign({}, missionsDoneToday, { [mId]: fmt.date() }) }));
   }
 
-  var xp    = (gami && gami.xp) || 0;
-  var lvl   = xpToLevel(xp);
+  var xp     = (gami && gami.xp) || 0;
+  var lvl    = xpToLevel(xp);
   var streak = progress.trained;
+  var lvlTitle = getLevelTitle(lvl);
 
-
-  var ringPct = Math.min(goalProgress.pct, 100);
-  var ringCirc = 251;
+  // ring calc
+  var ringPct    = Math.min(goalProgress.pct, 100);
+  var ringR      = 52;
+  var ringCirc   = 2 * Math.PI * ringR;
   var ringOffset = ringCirc - (ringCirc * ringPct / 100);
 
+  // missions progress
+  var mDone   = missions.filter(function(m) { return missionsDoneToday[m.id] === fmt.date(); }).length;
+  var mTotal  = missions.length;
+  var mPct    = mTotal > 0 ? Math.round((mDone / mTotal) * 100) : 0;
+
+  // weekly kcal estimate
+  var weekKcal = (progress.trained * 380).toLocaleString("pt-BR");
+
   return (
-    <div style={{ minHeight: "100vh", background: T.bg, paddingBottom: 100 }}>
+    <div style={{ minHeight: "100vh", background: "#050505", paddingBottom: 104, overflowX: "hidden" }}>
       <XPPopup xp={XP_MISSION_DONE} visible={xpPop} />
 
-      {/* HEADER */}
-      <div style={{ padding: "52px 20px 0", background: "linear-gradient(180deg, rgba(255,92,0,0.06) 0%, transparent 100%)", position: "relative", overflow: "hidden" }}>
-        <div style={{ position: "absolute", top: -100, right: -60, width: 300, height: 300, background: "radial-gradient(circle, rgba(255,92,0,0.09) 0%, transparent 65%)", pointerEvents: "none" }} />
-        <Row justify="space-between" align="flex-start" style={{ marginBottom: 20 }}>
-          <Col gap={3}>
-            <span style={{ fontSize: 11, color: T.text3, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase" }}>{fmt.dateLabel()}</span>
-            <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 30, fontWeight: 800, color: T.text, lineHeight: 1, letterSpacing: "0.01em" }}>
+      {/* ── HEADER ─────────────────────────────────────────────────────────── */}
+      <div style={{ padding: "54px 22px 0", position: "relative" }}>
+        {/* Ambient glow */}
+        <div style={{ position: "absolute", top: 0, right: 0, width: 220, height: 220, background: "radial-gradient(circle at 80% 20%, rgba(255,92,0,0.11) 0%, transparent 70%)", pointerEvents: "none" }} />
+
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 28 }}>
+          <div>
+            <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 36, fontWeight: 900, color: "#EEEAE4", lineHeight: 1.05, letterSpacing: "0.01em" }}>
               Olá, {fmt.firstName(user && user.name)}! 👊
             </div>
-            <span style={{ fontSize: 12, color: T.text2, fontWeight: 500 }}>Pronto para mais um treino?</span>
-          </Col>
-          <div onClick={function() { go("settings"); }} style={{ width: 38, height: 38, background: T.surface2, border: "1px solid " + T.border2, borderRadius: 11, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0 }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={T.text2} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <div style={{ fontSize: 14, color: T.text2, fontWeight: 400, marginTop: 4 }}>Pronto para mais um treino?</div>
           </div>
-        </Row>
+          {/* Bell icon button */}
+          <div onClick={function() { go("settings"); }} style={{ width: 42, height: 42, background: T.surface, border: "1px solid " + T.border2, borderRadius: 13, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0, position: "relative" }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={T.text2} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+            <div style={{ position: "absolute", top: 9, right: 10, width: 7, height: 7, background: T.orange, borderRadius: "50%", border: "1.5px solid #050505" }} />
+          </div>
+        </div>
 
-        {/* PROGRESS CARD with ring */}
-        <div style={{ background: "linear-gradient(135deg, rgba(255,92,0,0.14) 0%, rgba(255,92,0,0.04) 60%, " + T.surface + " 100%)", border: "1px solid rgba(255,92,0,0.24)", borderRadius: 22, padding: 20, marginBottom: 0, position: "relative", overflow: "hidden" }}>
-          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "1px", background: "linear-gradient(90deg, transparent 5%, " + T.orange + " 50%, transparent 95%)", opacity: 0.7 }} />
-          <Row justify="space-between" align="flex-start" style={{ marginBottom: 8 }}>
-            <span style={{ fontSize: 10, color: T.orange, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" }}>Seu Progresso</span>
-            <span onClick={function() { go("progress"); }} style={{ fontSize: 11, color: T.orange, fontWeight: 600, cursor: "pointer" }}>Ver mais ›</span>
-          </Row>
-          <Row gap={16} align="flex-start">
-            <div style={{ position: "relative", width: 84, height: 84, flexShrink: 0 }}>
-              <svg width="84" height="84" viewBox="0 0 100 100" style={{ transform: "rotate(-90deg)" }}>
-                <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="9" />
-                <circle cx="50" cy="50" r="40" fill="none" stroke={T.orange} strokeWidth="9"
-                  strokeDasharray={251} strokeDashoffset={ringOffset}
+        {/* ── PROGRESS HERO CARD ──────────────────────────────────────────── */}
+        <div style={{ background: "linear-gradient(135deg, #2A1000 0%, #1A0A00 40%, #0F0600 100%)", border: "1px solid rgba(255,92,0,0.35)", borderRadius: 24, padding: "22px 22px 22px 22px", marginBottom: 30, position: "relative", overflow: "hidden", boxShadow: "0 12px 40px rgba(255,92,0,0.15), inset 0 1px 0 rgba(255,92,0,0.2)" }}>
+          {/* Top shimmer line */}
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent 10%, " + T.orange + " 50%, transparent 90%)", opacity: 0.8 }} />
+          {/* Inner glow */}
+          <div style={{ position: "absolute", bottom: -40, left: -40, width: 200, height: 200, background: "radial-gradient(circle, rgba(255,92,0,0.12) 0%, transparent 65%)", pointerEvents: "none" }} />
+
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
+            <span style={{ fontSize: 13, fontWeight: 700, color: "#EEEAE4", letterSpacing: "0.02em" }}>Seu progresso</span>
+            <span onClick={function() { go("progress"); }} style={{ fontSize: 13, color: "rgba(255,255,255,0.55)", cursor: "pointer", display: "flex", alignItems: "center", gap: 3, fontWeight: 500 }}>
+              Ver mais
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+            </span>
+          </div>
+
+          <div style={{ display: "flex", gap: 18, alignItems: "center" }}>
+            {/* Ring SVG — bigger, more impact */}
+            <div style={{ position: "relative", width: 116, height: 116, flexShrink: 0 }}>
+              <svg width="116" height="116" viewBox="0 0 120 120" style={{ transform: "rotate(-90deg)" }}>
+                <circle cx="60" cy="60" r={ringR} fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="11" />
+                <circle cx="60" cy="60" r={ringR} fill="none"
+                  stroke={T.orange} strokeWidth="11"
+                  strokeDasharray={ringCirc}
+                  strokeDashoffset={ringOffset}
                   strokeLinecap="round"
-                  style={{ transition: "stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1)" }} />
+                  style={{ transition: "stroke-dashoffset 1.4s cubic-bezier(.4,0,.2,1)", filter: "drop-shadow(0 0 8px rgba(255,92,0,0.7))" }}
+                />
               </svg>
               <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-                <span style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 24, fontWeight: 900, color: T.text, lineHeight: 1 }}>{ringPct}<span style={{ fontSize: 13 }}>%</span></span>
+                <span style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 30, fontWeight: 900, color: "#EEEAE4", lineHeight: 1 }}>
+                  {ringPct}<span style={{ fontSize: 16, color: "rgba(255,255,255,0.45)", fontWeight: 700 }}>%</span>
+                </span>
               </div>
             </div>
-            <Col gap={10} style={{ flex: 1 }}>
-              <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid " + T.border, borderRadius: 12, padding: "10px 14px" }}>
-                <Row gap={8}>
-                  <span style={{ fontSize: 14 }}>🏋️</span>
-                  <Col gap={1}>
-                    <span style={{ fontSize: 9, color: T.text3, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase" }}>Treinos esta semana</span>
-                    <span style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 20, fontWeight: 900, color: T.text, lineHeight: 1 }}>{progress.trained} <span style={{ fontSize: 12, color: T.text3, fontWeight: 500 }}>/ {(profile && profile.days) || 3}</span></span>
-                  </Col>
-                </Row>
-              </div>
-              <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid " + T.border, borderRadius: 12, padding: "10px 14px" }}>
-                <Row gap={8}>
-                  <span style={{ fontSize: 14 }}>🔥</span>
-                  <Col gap={1}>
-                    <span style={{ fontSize: 9, color: T.text3, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase" }}>Calorias queimadas</span>
-                    <span style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 20, fontWeight: 900, color: T.text, lineHeight: 1 }}>{(progress.trained * 380).toLocaleString()} <span style={{ fontSize: 10, color: T.text3 }}>kcal</span></span>
-                  </Col>
-                </Row>
-              </div>
-            </Col>
-          </Row>
-        </div>
-      </div>
 
-      <div style={{ padding: "18px 20px 0" }}>
-        {/* ALERTS */}
+            {/* Stats column */}
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 10 }}>
+              <div style={{ background: "rgba(0,0,0,0.35)", borderRadius: 14, padding: "12px 16px", border: "1px solid rgba(255,255,255,0.07)" }}>
+                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 4 }}>Treinos esta semana</div>
+                <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                  <span style={{ fontSize: 15 }}>🔥</span>
+                  <span style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 22, fontWeight: 900, color: "#EEEAE4", lineHeight: 1 }}>
+                    {progress.trained} <span style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", fontWeight: 500 }}>/ {(profile && profile.days) || 3}</span>
+                  </span>
+                </div>
+              </div>
+              <div style={{ background: "rgba(0,0,0,0.35)", borderRadius: 14, padding: "12px 16px", border: "1px solid rgba(255,255,255,0.07)" }}>
+                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 4 }}>Calorias queimadas</div>
+                <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                  <span style={{ fontSize: 15 }}>🔥</span>
+                  <span style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 22, fontWeight: 900, color: "#EEEAE4", lineHeight: 1 }}>
+                    {weekKcal} <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontWeight: 500 }}>kcal</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ── ALERTS (adaptive) ───────────────────────────────────────────── */}
         {routine && routine.sportsToday && (
-          <div style={{ marginBottom: 12, padding: "10px 14px", background: T.blue + "12", borderRadius: 12, border: "1px solid " + T.blue + "25" }}>
-            <Row gap={8}><span>🏀</span><span style={{ fontSize: 13, color: T.blue }}>{routine.sportsToday} hoje — pernas reduzidas no treino</span></Row>
+          <div style={{ marginBottom: 16, padding: "11px 16px", background: "rgba(61,142,255,0.08)", borderRadius: 14, border: "1px solid rgba(61,142,255,0.2)" }}>
+            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              <span style={{ fontSize: 16 }}>🏀</span>
+              <span style={{ fontSize: 13, color: T.blue, fontWeight: 500 }}>{routine.sportsToday} hoje — pernas reduzidas no treino</span>
+            </div>
           </div>
         )}
         {routine && routine.sleepHours && Number(routine.sleepHours) < 6 && (
-          <div style={{ marginBottom: 12, padding: "10px 14px", background: T.yellow + "12", borderRadius: 12, border: "1px solid " + T.yellow + "25" }}>
-            <Row gap={8}><span>😴</span><span style={{ fontSize: 13, color: T.yellow }}>Sono baixo — intensidade reduzida hoje</span></Row>
+          <div style={{ marginBottom: 16, padding: "11px 16px", background: "rgba(240,188,46,0.08)", borderRadius: 14, border: "1px solid rgba(240,188,46,0.2)" }}>
+            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              <span style={{ fontSize: 16 }}>😴</span>
+              <span style={{ fontSize: 13, color: T.yellow, fontWeight: 500 }}>Sono baixo — intensidade reduzida hoje</span>
+            </div>
           </div>
         )}
 
-        {/* DAILY MSG */}
-        <div style={{ marginBottom: 16, padding: "12px 16px", background: T.orangeGl, borderRadius: 14, border: "1px solid rgba(255,92,0,0.16)" }}>
-          <Row gap={10}><span style={{ fontSize: 17, flexShrink: 0 }}>💡</span><span style={{ fontSize: 13, color: T.text, lineHeight: 1.55, fontWeight: 500 }}>{dailyMsg}</span></Row>
+        {/* ── DAILY MSG ───────────────────────────────────────────────────── */}
+        <div style={{ background: T.surface, border: "1px solid " + T.border2, borderRadius: 16, padding: "14px 18px", marginBottom: 30, display: "flex", gap: 12, alignItems: "flex-start" }}>
+          <div style={{ width: 32, height: 32, borderRadius: 9, background: T.orangeGl2, border: "1px solid rgba(255,92,0,0.25)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 }}>💡</div>
+          <span style={{ fontSize: 13, color: T.text2, lineHeight: 1.6, fontWeight: 400, paddingTop: 4 }}>{dailyMsg}</span>
         </div>
 
-        {/* NEXT WORKOUT */}
+        {/* ── PRÓXIMO TREINO ──────────────────────────────────────────────── */}
         {todayWorkout ? (
-          <>
-            <Row justify="space-between" align="center" style={{ marginBottom: 10 }}>
-              <span style={{ fontSize: 10, color: T.text3, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" }}>Próximo Treino</span>
-              <span onClick={function() { go("workout"); }} style={{ fontSize: 11, color: T.orange, fontWeight: 600, cursor: "pointer" }}>Ver todos ›</span>
-            </Row>
-            <div style={{ background: T.surface, border: "1px solid " + T.border2, borderRadius: 20, padding: 20, marginBottom: 16, boxShadow: "0 4px 28px rgba(0,0,0,0.35)", position: "relative", overflow: "hidden" }}>
-              {!todayLog && <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "1px", background: "linear-gradient(90deg, transparent 5%, " + T.orange + " 50%, transparent 95%)", opacity: 0.6 }} />}
+          <div style={{ marginBottom: 30 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+              <span style={{ fontSize: 18, fontWeight: 700, color: "#EEEAE4", letterSpacing: "-0.01em" }}>Próximo treino</span>
+              <span onClick={function() { go("workout"); }} style={{ fontSize: 13, color: "rgba(255,255,255,0.35)", cursor: "pointer", display: "flex", alignItems: "center", gap: 3, fontWeight: 500 }}>
+                Ver todos
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+              </span>
+            </div>
+
+            <div style={{ background: T.surface, border: "1px solid " + T.border2, borderRadius: 22, padding: "22px 22px 20px", position: "relative", overflow: "hidden", boxShadow: "0 8px 32px rgba(0,0,0,0.45)" }}>
+              {!todayLog && <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent 10%, " + T.orange + " 50%, transparent 90%)", opacity: 0.55 }} />}
+
               {(todayWorkout.adaptedFor || todayWorkout.sleepAlert) && (
-                <div style={{ background: T.blue + "12", border: "1px solid " + T.blue + "20", borderRadius: 9, padding: "5px 10px", marginBottom: 10 }}>
-                  <span style={{ fontSize: 11, color: T.blue }}>{todayWorkout.adaptedFor || todayWorkout.sleepAlert}</span>
+                <div style={{ background: "rgba(61,142,255,0.1)", border: "1px solid rgba(61,142,255,0.2)", borderRadius: 10, padding: "6px 12px", marginBottom: 14 }}>
+                  <span style={{ fontSize: 12, color: T.blue }}>{todayWorkout.adaptedFor || todayWorkout.sleepAlert}</span>
                 </div>
               )}
-              <Row gap={14} align="center" style={{ marginBottom: 16 }}>
-                <div style={{ width: 52, height: 52, borderRadius: 15, background: todayLog && todayLog.completed ? T.surface3 : T.orangeGl2, border: "1px solid " + (todayLog && todayLog.completed ? T.border : "rgba(255,92,0,0.3)"), display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26, flexShrink: 0 }}>🏋️</div>
-                <Col gap={4}>
-                  <span style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 22, fontWeight: 800, color: todayLog && todayLog.completed ? T.text2 : T.text, letterSpacing: "0.01em", lineHeight: 1 }}>{todayWorkout.name}</span>
-                  <Row gap={6}>
-                    <span style={{ fontSize: 11, color: T.text3 }}>Hoje</span>
-                    {bestTime && <><span style={{ color: T.text3, fontSize: 11 }}>·</span><span style={{ fontSize: 11, color: T.text3 }}>{bestTime}</span></>}
-                    <span style={{ color: T.text3, fontSize: 11 }}>· ⏱ {todayWorkout.duration}min</span>
-                  </Row>
-                </Col>
-              </Row>
-              <div onClick={function() { go(todayLog && todayLog.completed ? "checkin" : "workout"); }}>
-                <Btn onPress={function() {}} full size="lg" style={{ pointerEvents: "none" }}>
-                  {todayLog && todayLog.completed ? "✓ Treino Concluído" : "Iniciar Treino ▶"}
-                </Btn>
+
+              {/* Workout info row */}
+              <div style={{ display: "flex", gap: 16, alignItems: "center", marginBottom: 20 }}>
+                {/* Icon — SVG dumbbell in circle like reference */}
+                <div style={{ width: 64, height: 64, borderRadius: "50%", background: todayLog && todayLog.completed ? T.surface3 : T.surface3, border: "2px solid " + (todayLog && todayLog.completed ? T.border : "rgba(255,92,0,0.35)"), display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, boxShadow: todayLog && todayLog.completed ? "none" : "0 0 18px rgba(255,92,0,0.2)" }}>
+                  <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke={todayLog && todayLog.completed ? T.text3 : T.orange} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M6.5 6.5L17.5 17.5M6.5 17.5L17.5 6.5"/><circle cx="4" cy="12" r="2"/><circle cx="20" cy="12" r="2"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><rect x="6" y="9" width="12" height="6" rx="2"/>
+                  </svg>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 24, fontWeight: 800, color: todayLog && todayLog.completed ? T.text2 : "#EEEAE4", letterSpacing: "0.01em", lineHeight: 1.1, marginBottom: 5 }}>
+                    {todayWorkout.name}
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                    <span style={{ fontSize: 13, color: T.text3 }}>Hoje{bestTime ? " · " + bestTime : ""}</span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 5 }}>
+                    <span style={{ fontSize: 13 }}>🔥</span>
+                    <span style={{ fontSize: 13, color: T.orange, fontWeight: 600 }}>{todayWorkout.duration} min</span>
+                    <span style={{ fontSize: 13, color: T.text3 }}>· {todayWorkout.exercises.length} exercícios</span>
+                  </div>
+                </div>
               </div>
+
+              {/* CTA Button — full orange like reference */}
+              <button
+                onClick={function() { go(todayLog && todayLog.completed ? "checkin" : "workout"); }}
+                style={{
+                  width: "100%", padding: "16px 24px",
+                  background: todayLog && todayLog.completed
+                    ? T.surface2
+                    : "linear-gradient(90deg, #FF5C00 0%, #FF7A2E 100%)",
+                  border: "none", borderRadius: 16, cursor: "pointer",
+                  display: "flex", alignItems: "center", justifyContent: "center", gap: 12,
+                  boxShadow: todayLog && todayLog.completed ? "none" : "0 6px 24px rgba(255,92,0,0.40)",
+                  transition: "transform 0.12s, box-shadow 0.18s",
+                }}
+                onMouseDown={function(e) { e.currentTarget.style.transform = "scale(0.97)"; }}
+                onMouseUp={function(e) { e.currentTarget.style.transform = "scale(1)"; }}
+                onMouseLeave={function(e) { e.currentTarget.style.transform = "scale(1)"; }}
+              >
+                <span style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 18, fontWeight: 900, color: "#fff", letterSpacing: "0.08em", textTransform: "uppercase" }}>
+                  {todayLog && todayLog.completed ? "✓ Treino Concluído" : "Iniciar Treino"}
+                </span>
+                {!(todayLog && todayLog.completed) && (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff" stroke="none">
+                    <polygon points="5 3 19 12 5 21 5 3"/>
+                  </svg>
+                )}
+              </button>
+
               {!todayLog && (
-                <Row justify="space-between" style={{ marginTop: 10 }}>
-                  <span style={{ fontSize: 11, color: T.text3 }}>{todayWorkout.exercises.length} exercícios</span>
-                  <span style={{ fontSize: 11, color: T.orange, fontWeight: 700 }}>+{XP_WORKOUT_COMPLETE} XP</span>
-                </Row>
+                <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 10 }}>
+                  <span style={{ fontSize: 12, color: T.orange, fontWeight: 700 }}>+{XP_WORKOUT_COMPLETE} XP</span>
+                </div>
               )}
             </div>
-          </>
+          </div>
         ) : (
-          <EmptyState icon="🏋️" title="Sem treino gerado" body="Atualize seu perfil para gerar um plano personalizado." action="Configurar perfil" onAction={function() { go("settings"); }} />
+          <div style={{ marginBottom: 30 }}>
+            <EmptyState icon="🏋️" title="Sem treino gerado" body="Atualize seu perfil para gerar um plano personalizado." action="Configurar perfil" onAction={function() { go("settings"); }} />
+          </div>
         )}
 
-        {/* 4-GRID SHORTCUTS */}
-        <Row justify="space-between" align="center" style={{ marginBottom: 10 }}>
-          <span style={{ fontSize: 10, color: T.text3, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" }}>Atalhos</span>
-        </Row>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 20 }}>
-          {[
-            { icon: "🏋️", label: "Treinos",  screen: "workout"   },
-            { icon: "✅", label: "Check-in", screen: "checkin"   },
-            { icon: "🥗", label: "Nutrição", screen: "nutrition" },
-            { icon: "📈", label: "Evolução", screen: "progress"  },
-          ].map(function(a) {
-            return (
-              <div key={a.label} onClick={function() { go(a.screen); }} style={{ background: T.surface, border: "1px solid " + T.border, borderRadius: 16, padding: "14px 6px", cursor: "pointer", textAlign: "center", transition: "background 0.15s, border-color 0.15s" }}>
-                <div style={{ fontSize: 22, marginBottom: 6 }}>{a.icon}</div>
-                <span style={{ fontSize: 10, fontWeight: 600, color: T.text2 }}>{a.label}</span>
-              </div>
-            );
-          })}
+        {/* ── ATALHOS ─────────────────────────────────────────────────────── */}
+        <div style={{ marginBottom: 30 }}>
+          <span style={{ fontSize: 18, fontWeight: 700, color: "#EEEAE4", letterSpacing: "-0.01em", display: "block", marginBottom: 14 }}>Atalhos</span>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
+            {[
+              { label: "Treinos",   screen: "workout",   svg: "M6.5 6.5L17.5 17.5M6.5 17.5L17.5 6.5M4 12H20M12 4V20" },
+              { label: "Exercícios",screen: "workout",   svg: "M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" },
+              { label: "Nutrição",  screen: "nutrition", svg: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" },
+              { label: "Evolução",  screen: "progress",  svg: "M3 3V21H21M7 16L11 12L15 16L21 9" },
+            ].map(function(a) {
+              return (
+                <div
+                  key={a.label}
+                  onClick={function() { go(a.screen); }}
+                  style={{ background: T.surface, border: "1px solid " + T.border2, borderRadius: 18, padding: "18px 8px 14px", cursor: "pointer", textAlign: "center", transition: "background 0.14s, border-color 0.14s", display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}
+                >
+                  <div style={{ width: 44, height: 44, borderRadius: 13, background: T.orangeGl, border: "1px solid rgba(255,92,0,0.22)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={T.orange} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <path d={a.svg} />
+                    </svg>
+                  </div>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: T.text2, lineHeight: 1.2 }}>{a.label}</span>
+                </div>
+              );
+            })}
+          </div>
         </div>
 
-        {/* XP BAR */}
-        <div style={{ marginBottom: 16 }}><XPBar xp={xp} /></div>
+        {/* ── XP / LEVEL CARD ─────────────────────────────────────────────── */}
+        <div style={{ marginBottom: 30 }}>
+          <XPBar xp={xp} />
+        </div>
 
-        {/* NORTH STAR GOAL */}
+        {/* ── GOAL JOURNEY ───────────────────────────────────────────────── */}
         {logs.length >= 2 && (
-          <div style={{ marginBottom: 16 }}>
-            <p style={{ fontSize: 10, color: T.text3, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 10 }}>Sua Jornada</p>
+          <div style={{ marginBottom: 30 }}>
+            <span style={{ fontSize: 16, fontWeight: 700, color: "#EEEAE4", letterSpacing: "-0.01em", display: "block", marginBottom: 14 }}>Sua Jornada</span>
             <GoalJourneyBar progress={goalProgress} goal={profile && profile.goal} />
           </div>
         )}
 
-        {/* DAILY MISSIONS */}
-        <div style={{ marginBottom: 16 }}>
-          <Row justify="space-between" align="center" style={{ marginBottom: 12 }}>
-            <span style={{ fontSize: 10, color: T.text3, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" }}>Missões do Dia</span>
-            <span style={{ fontSize: 11, color: T.purple, fontWeight: 700 }}>
-              {missions.filter(function(m) { return missionsDoneToday[m.id] === fmt.date(); }).length}/{missions.length} completas
-            </span>
-          </Row>
-          <Col gap={8}>
+        {/* ── MISSÕES DO DIA ──────────────────────────────────────────────── */}
+        <div style={{ marginBottom: 30 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+            <span style={{ fontSize: 18, fontWeight: 700, color: "#EEEAE4", letterSpacing: "-0.01em" }}>Missões do Dia</span>
+            <span style={{ fontSize: 13, color: T.purple, fontWeight: 700 }}>{mDone}/{mTotal} completas</span>
+          </div>
+          {/* Missions progress bar */}
+          {mTotal > 0 && (
+            <div style={{ marginBottom: 14 }}>
+              <div style={{ background: "rgba(255,255,255,0.06)", borderRadius: 99, height: 5, overflow: "hidden" }}>
+                <div style={{ width: mPct + "%", height: "100%", background: "linear-gradient(90deg," + T.purple + ",#A78BFA)", borderRadius: 99, transition: "width 0.6s ease" }} />
+              </div>
+            </div>
+          )}
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {missions.map(function(m) {
               var done = missionsDoneToday[m.id] === fmt.date();
               return <MissionCard key={m.id} mission={m} done={done} onDone={function() { completeMission(m.id); }} />;
             })}
-          </Col>
+          </div>
         </div>
 
-        {/* UPSELL */}
+        {/* ── COACH IA CARD ────────────────────────────────────────────────── */}
+        <div
+          onClick={function() { go("coach"); }}
+          style={{ background: "linear-gradient(135deg, rgba(124,77,255,0.14) 0%, rgba(124,77,255,0.04) 100%)", border: "1px solid rgba(124,77,255,0.25)", borderRadius: 22, padding: "20px 22px", marginBottom: 30, cursor: "pointer", position: "relative", overflow: "hidden", boxShadow: "0 8px 28px rgba(124,77,255,0.12)" }}
+        >
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent 10%, rgba(124,77,255,0.8) 50%, transparent 90%)" }} />
+          <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+            <div style={{ width: 52, height: 52, borderRadius: 15, background: "linear-gradient(135deg," + T.purple + " 0%, #5B21B6 100%)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26, flexShrink: 0, boxShadow: "0 4px 16px rgba(124,77,255,0.40)" }}>🤖</div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 20, fontWeight: 800, color: "#EEEAE4", lineHeight: 1.1, marginBottom: 4 }}>Coach FitPro IA</div>
+              <div style={{ fontSize: 13, color: T.text2, lineHeight: 1.5 }}>
+                {isPro ? "Chat ilimitado — Pergunte sobre treino e nutrição" : "5 perguntas grátis por dia"}
+              </div>
+            </div>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={T.text3} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+        </div>
+
+        {/* ── UPSELL (contextual) ─────────────────────────────────────────── */}
         {!isPro && logs.length >= 3 && (
-          <div style={{ background: "linear-gradient(135deg, rgba(255,92,0,0.13) 0%, rgba(255,92,0,0.04) 100%)", border: "1px solid rgba(255,92,0,0.26)", borderRadius: 20, padding: 20, marginBottom: 16, position: "relative", overflow: "hidden" }}>
-            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "1px", background: "linear-gradient(90deg, transparent 5%, " + T.orange + " 50%, transparent 95%)", opacity: 0.6 }} />
-            <Row gap={14} style={{ marginBottom: 14 }}>
-              <span style={{ fontSize: 32 }}>🔓</span>
-              <Col gap={3}><span style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 18, fontWeight: 800, color: T.text }}>Ative o Pro Agora</span><span style={{ fontSize: 12, color: T.text2 }}>IA analisa seu histórico e gera treino 100% único</span></Col>
-            </Row>
+          <div style={{ background: "linear-gradient(135deg, rgba(255,92,0,0.12) 0%, rgba(255,92,0,0.03) 100%)", border: "1px solid rgba(255,92,0,0.28)", borderRadius: 22, padding: "20px 22px", marginBottom: 16, position: "relative", overflow: "hidden" }}>
+            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent 10%, " + T.orange + " 50%, transparent 90%)", opacity: 0.6 }} />
+            <div style={{ display: "flex", gap: 14, alignItems: "center", marginBottom: 16 }}>
+              <span style={{ fontSize: 34 }}>🔓</span>
+              <div>
+                <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 20, fontWeight: 800, color: "#EEEAE4", marginBottom: 3 }}>Ative o Pro Agora</div>
+                <div style={{ fontSize: 13, color: T.text2 }}>IA analisa seu histórico e gera treino 100% único</div>
+              </div>
+            </div>
             <Btn onPress={function() { go("paywall"); }} full size="lg">Ver Planos — 7 dias grátis</Btn>
           </div>
         )}
-
-        {/* COACH SHORTCUT */}
-        <div onClick={function() { go("coach"); }} style={{ background: T.purpleGl, border: "1px solid rgba(124,77,255,0.2)", borderRadius: 16, padding: "14px 18px", marginBottom: 16, cursor: "pointer", display: "flex", alignItems: "center", gap: 14 }}>
-          <div style={{ width: 44, height: 44, background: "linear-gradient(135deg," + T.purple + ",#5B21B6)", borderRadius: 13, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0, boxShadow: "0 4px 14px rgba(124,77,255,0.35)" }}>🤖</div>
-          <Col gap={2} style={{ flex: 1 }}><span style={{ fontSize: 14, fontWeight: 700, color: T.text }}>Coach FitPro IA</span><span style={{ fontSize: 12, color: T.text2 }}>Tire dúvidas sobre treino e alimentação</span></Col>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={T.text3} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-        </div>
       </div>
     </div>
   );
