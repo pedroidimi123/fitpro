@@ -12,38 +12,43 @@ import { AuthProvider } from "./context/AuthContext"
 import InstallScreen from "./screens/InstallScreen";
 // ─── THEME ───────────────────────────────────────────────────────────────────
 var T = Object.freeze({
-  bg:       "#0A0A0B",
-  surface:  "#18181C",
-  surface2: "#1F1F25",
+  bg:       "#070709",
+  bg2:      "#0D0D10",
+  surface:  "#131316",
+  surface2: "#1A1A1F",
+  surface3: "#222228",
   border:   "rgba(255,255,255,0.07)",
-  border2:  "rgba(255,255,255,0.12)",
-  orange:   "#FF6B1A",
-  orangeHi: "#FF8C45",
-  orangeLo: "#2A1200",
-  orangeGl: "rgba(255,107,26,0.09)",
-  orangeGl2:"rgba(255,107,26,0.15)",
-  text:     "#F0EDE8",
-  text2:    "#8A8790",
-  text3:    "#4A4852",
-  green:    "#2ECC8A",
-  red:      "#FF4554",
-  blue:     "#4B9EFF",
-  yellow:   "#F5C842",
-  purple:   "#8B5CF6",
-  purpleGl: "rgba(139,92,246,0.1)",
+  border2:  "rgba(255,255,255,0.11)",
+  border3:  "rgba(255,255,255,0.18)",
+  orange:   "#FF5C00",
+  orangeHi: "#FF7A2E",
+  orangeLo: "#2A1000",
+  orangeGl: "rgba(255,92,0,0.09)",
+  orangeGl2:"rgba(255,92,0,0.16)",
+  text:     "#EEEAE4",
+  text2:    "#7E7A86",
+  text3:    "#3E3C45",
+  green:    "#1DB870",
+  greenGl:  "rgba(29,184,112,0.1)",
+  red:      "#FF3B4E",
+  blue:     "#3D8EFF",
+  yellow:   "#F0BC2E",
+  purple:   "#7C4DFF",
+  purpleGl: "rgba(124,77,255,0.1)",
 });
 
-var FONTS = "@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=DM+Sans:wght@400;500;600&display=swap');";
+var FONTS = "@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;0,900;1,800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap');";
 
 var GLOBAL_CSS = "\n" +
-  "* { box-sizing: border-box; margin: 0; padding: 0; }\n" +
-  "html, body { width: 100%; min-height: 100%; background: " + T.bg + "; }\n" +
+  "* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }\n" +
+  "html, body { width: 100%; min-height: 100%; background: " + T.bg + "; overscroll-behavior: none; }\n" +
   "input,textarea,button,select { font-family: 'DM Sans', sans-serif; }\n" +
   "input[type=range] { width: 100%; accent-color: " + T.orange + "; }\n" +
   "::-webkit-scrollbar { width: 0; height: 0; }\n" +
   "::placeholder { color: " + T.text3 + "; }\n" +
   "@keyframes bounce { 0%,80%,100% { transform: translateY(0); } 40% { transform: translateY(-6px); } }\n" +
-  "@keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }\n" +
+  "@keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }\n" +
+  "@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }\n" +
   "@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }\n" +
   "@keyframes shimmer { 0% { background-position: -400px 0; } 100% { background-position: 400px 0; } }\n" +
   "@keyframes scaleIn { from { opacity: 0; transform: scale(0.93); } to { opacity: 1; transform: scale(1); } }\n" +
@@ -51,7 +56,11 @@ var GLOBAL_CSS = "\n" +
   "@keyframes streakPulse { 0%,100% { box-shadow: 0 0 0 0 " + T.orange + "44; } 50% { box-shadow: 0 0 0 8px " + T.orange + "00; } }\n" +
   "@keyframes barFill { from { width: 0%; } to { width: var(--bar-w); } }\n" +
   "@keyframes celebIn { 0% { opacity: 0; transform: scale(0.85) translateY(20px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }\n" +
-  ".display { font-family: 'Barlow Condensed', sans-serif !important; }\n";
+  "@keyframes ringFill { from { stroke-dashoffset: 251; } to { stroke-dashoffset: var(--ring-offset); } }\n" +
+  ".fp-ring-fill { animation: ringFill 1.2s cubic-bezier(.4,0,.2,1) forwards; }\n" +
+  ".fp-sec-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }\n" +
+  ".fp-sec-title { font-size: 11px; font-weight: 700; color: " + T.text3 + "; letter-spacing: 0.12em; text-transform: uppercase; }\n" +
+  ".fp-sec-link { font-size: 12px; font-weight: 700; color: " + T.orange + "; display: flex; align-items: center; gap: 3px; }\n";
 
 // ─── EXERCISE DATA ────────────────────────────────────────────────────────────
 var MUSCLE_ICONS = Object.freeze({
@@ -977,36 +986,38 @@ var Col = memo(function Col(props) {
 var Card = memo(function Card(props) {
   var _h = useState(false); var hov = _h[0]; var setHov = _h[1];
   var glowColor = props.accent || T.orange;
-  var border = props.glow
-    ? glowColor + "44"
-    : (props.accent ? props.accent + "44" : (hov && props.onClick ? T.border2 : T.border));
+  var isHovClick = hov && props.onClick;
+  var borderColor = props.glow
+    ? "rgba(255,92,0,0.32)"
+    : props.accent
+      ? props.accent + "44"
+      : isHovClick ? T.border3 : T.border;
   var shadow = props.glow
-    ? "0 0 0 1px " + glowColor + "22, 0 8px 32px " + glowColor + "14"
-    : "none";
-  var topLine = props.glow
-    ? "linear-gradient(90deg, transparent 5%, " + glowColor + " 50%, transparent 95%)"
-    : "none";
+    ? "0 0 0 1px rgba(255,92,0,0.12), 0 12px 40px rgba(255,92,0,0.12)"
+    : props.accent
+      ? "0 8px 32px " + props.accent + "14"
+      : "none";
   return (
     <div
       onClick={props.onClick}
       onMouseEnter={function() { setHov(true); }}
       onMouseLeave={function() { setHov(false); }}
       style={Object.assign({
-        background: T.surface,
-        border: "1px solid " + border,
-        borderRadius: 18,
-        padding: props.pad !== undefined ? props.pad : 18,
+        background: props.surface2 ? T.surface2 : T.surface,
+        border: "1px solid " + borderColor,
+        borderRadius: 20,
+        padding: props.pad !== undefined ? props.pad : 20,
         boxShadow: shadow,
         cursor: props.onClick ? "pointer" : "default",
-        transition: "border-color 0.2s, box-shadow 0.2s, transform 0.15s",
-        transform: hov && props.onClick ? "translateY(-1px)" : "translateY(0)",
+        transition: "border-color 0.18s, box-shadow 0.18s, transform 0.15s",
+        transform: isHovClick ? "translateY(-1px)" : "translateY(0)",
         animation: props.animate !== false ? "fadeUp 0.22s ease" : "none",
         position: "relative",
         overflow: "hidden",
       }, props.style || {})}
     >
-      {props.glow && (
-        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "1px", background: topLine, opacity: 0.6, pointerEvents: "none" }} />
+      {(props.glow || props.topline) && (
+        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "1px", background: "linear-gradient(90deg, transparent 5%, " + glowColor + " 50%, transparent 95%)", opacity: props.glow ? 0.7 : 0.35, pointerEvents: "none" }} />
       )}
       {props.children}
     </div>
@@ -1015,18 +1026,20 @@ var Card = memo(function Card(props) {
 
 var Btn = memo(function Btn(props) {
   var _p = useState(false); var press = _p[0]; var setPress = _p[1];
-  var PAD  = { sm: "9px 16px", md: "13px 22px", lg: "15px 28px" };
+  var PAD  = { sm: "10px 18px", md: "13px 22px", lg: "16px 28px" };
   var FS   = { sm: 12, md: 14, lg: 15 };
+  var LS   = { sm: "0.02em", md: "0.02em", lg: "0.05em" };
   var VARS = {
-    fill:   { background: "linear-gradient(135deg," + T.orange + " 0%," + T.orangeHi + " 100%)", color: "#fff", border: "none", boxShadow: "0 4px 16px rgba(255,107,26,0.3)" },
-    ghost:  { background: T.orangeGl, color: T.orange, border: "1px solid rgba(255,107,26,0.25)", boxShadow: "none" },
+    fill:   { background: "linear-gradient(135deg," + T.orange + " 0%," + T.orangeHi + " 100%)", color: "#fff", border: "none", boxShadow: "0 4px 22px rgba(255,92,0,0.35)" },
+    ghost:  { background: T.orangeGl2, color: T.orange, border: "1px solid rgba(255,92,0,0.28)", boxShadow: "none" },
     dim:    { background: T.surface2, color: T.text2, border: "1px solid " + T.border2, boxShadow: "none" },
     danger: { background: T.red + "18", color: T.red, border: "1px solid " + T.red + "33", boxShadow: "none" },
-    green:  { background: T.green + "14", color: T.green, border: "1px solid " + T.green + "33", boxShadow: "none" },
-    purple: { background: "linear-gradient(135deg," + T.purple + " 0%,#6D28D9 100%)", color: "#fff", border: "none", boxShadow: "0 4px 16px rgba(139,92,246,0.3)" },
+    green:  { background: T.greenGl, color: T.green, border: "1px solid " + T.green + "33", boxShadow: "none" },
+    purple: { background: "linear-gradient(135deg," + T.purple + " 0%,#5B21B6 100%)", color: "#fff", border: "none", boxShadow: "0 4px 18px rgba(124,77,255,0.35)" },
   };
   var isDisabled = props.disabled || props.loading;
   var base = VARS[props.variant] || VARS.fill;
+  var sz = props.size || "md";
   return (
     <button
       onClick={isDisabled ? undefined : props.onPress}
@@ -1034,21 +1047,22 @@ var Btn = memo(function Btn(props) {
       onMouseUp={function() { setPress(false); }}
       onMouseLeave={function() { setPress(false); }}
       style={Object.assign({}, base, {
-        padding: PAD[props.size] || PAD.md,
-        fontSize: FS[props.size] || FS.md,
+        padding: PAD[sz],
+        fontSize: FS[sz],
         fontWeight: 700,
-        letterSpacing: "0.01em",
-        borderRadius: 13,
+        letterSpacing: LS[sz],
+        textTransform: sz === "lg" ? "uppercase" : "none",
+        borderRadius: 14,
         cursor: isDisabled ? "not-allowed" : "pointer",
-        opacity: isDisabled ? 0.4 : 1,
+        opacity: isDisabled ? 0.38 : 1,
         transform: press && !isDisabled ? "scale(0.97)" : "scale(1)",
-        transition: "opacity 0.15s, transform 0.15s, box-shadow 0.2s",
+        transition: "opacity 0.15s, transform 0.12s, box-shadow 0.18s",
         width: props.full ? "100%" : "auto",
         display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
       }, props.style || {})}
     >
       {props.loading && (
-        <span style={{ width: 14, height: 14, border: "2px solid rgba(255,255,255,0.25)", borderTopColor: "#fff", borderRadius: "50%", animation: "spin 0.6s linear infinite", flexShrink: 0 }} />
+        <span style={{ width: 15, height: 15, border: "2px solid rgba(255,255,255,0.28)", borderTopColor: "#fff", borderRadius: "50%", animation: "spin 0.6s linear infinite", flexShrink: 0 }} />
       )}
       {props.children}
     </button>
@@ -1095,6 +1109,35 @@ var Bar = memo(function Bar(props) {
   return (
     <div style={{ background: "rgba(255,255,255,0.06)", borderRadius: 99, height: props.thin ? 4 : 6, overflow: "hidden" }}>
       <div style={{ width: pct + "%", height: "100%", background: "linear-gradient(90deg," + (props.color || T.orange) + "," + (props.color || T.orange) + "cc)", borderRadius: 99, transition: "width 0.55s ease" }} />
+    </div>
+  );
+});
+
+// SVG progress ring — matches reference image progress card
+var ProgressRing = memo(function ProgressRing(props) {
+  var pct    = Math.min(100, Math.max(0, props.pct || 0));
+  var size   = props.size || 96;
+  var stroke = props.stroke || 8;
+  var r      = (size - stroke) / 2;
+  var circ   = 2 * Math.PI * r;
+  var offset = circ - (pct / 100) * circ;
+  var color  = props.color || T.orange;
+  return (
+    <div style={{ position: "relative", width: size, height: size, flexShrink: 0 }}>
+      <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={stroke} />
+        <circle
+          cx={size/2} cy={size/2} r={r} fill="none"
+          stroke={color} strokeWidth={stroke}
+          strokeDasharray={circ} strokeDashoffset={offset}
+          strokeLinecap="round"
+          style={{ transition: "stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1)", filter: "drop-shadow(0 0 6px " + color + "88)" }}
+        />
+      </svg>
+      <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+        <span style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: props.fontSize || 22, fontWeight: 900, color: T.text, lineHeight: 1 }}>{pct}<span style={{ fontSize: (props.fontSize || 22) * 0.55, color: T.text2 }}>%</span></span>
+        {props.label && <span style={{ fontSize: 8, color: T.text3, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", marginTop: 2 }}>{props.label}</span>}
+      </div>
     </div>
   );
 });
@@ -1207,32 +1250,17 @@ var MissionCard = memo(function MissionCard(props) {
   var mission = props.mission;
   var done    = props.done;
   var onDone  = props.onDone;
-
   return (
-    <div style={{
-      display: "flex", alignItems: "center", gap: 12,
-      background: done ? T.green + "08" : T.surface2,
-      border: "1px solid " + (done ? T.green + "33" : T.border),
-      borderRadius: 12, padding: "12px 14px",
-      transition: "all 0.3s",
-    }}>
-      <div style={{
-        width: 36, height: 36, borderRadius: "50%", flexShrink: 0,
-        background: done ? T.green : T.border2,
-        display: "flex", alignItems: "center", justifyContent: "center",
-        fontSize: done ? 16 : 18, transition: "all 0.3s",
-        boxShadow: done ? "0 0 10px " + T.green + "44" : "none",
-      }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 14, background: done ? T.greenGl : T.surface2, border: "1px solid " + (done ? T.green + "30" : T.border), borderRadius: 16, padding: "14px 16px", transition: "all 0.3s" }}>
+      <div style={{ width: 42, height: 42, borderRadius: "50%", flexShrink: 0, background: done ? T.green : T.surface3, border: "2px solid " + (done ? T.green : T.border2), display: "flex", alignItems: "center", justifyContent: "center", fontSize: done ? 18 : 20, transition: "all 0.3s", boxShadow: done ? "0 0 14px " + T.green + "44" : "none" }}>
         {done ? "✓" : mission.icon}
       </div>
       <Col gap={2} style={{ flex: 1 }}>
-        <span style={{ fontSize: 13, fontWeight: 600, color: done ? T.green : T.text, textDecoration: done ? "line-through" : "none" }}>
-          {mission.label}
-        </span>
-        <span style={{ fontSize: 10, color: T.text3, fontWeight: 700 }}>+{mission.xp} XP</span>
+        <span style={{ fontSize: 14, fontWeight: 600, color: done ? T.green : T.text, textDecoration: done ? "line-through" : "none", lineHeight: 1.3 }}>{mission.label}</span>
+        <span style={{ fontSize: 11, color: done ? T.green : T.purple, fontWeight: 700 }}>+{mission.xp} XP</span>
       </Col>
       {!done && (
-        <button onClick={onDone} style={{ background: "none", border: "1px solid " + T.orange + "55", borderRadius: 8, color: T.orange, fontSize: 11, fontWeight: 700, padding: "4px 10px", cursor: "pointer" }}>
+        <button onClick={onDone} style={{ background: "none", border: "1px solid rgba(255,92,0,0.4)", borderRadius: 10, color: T.orange, fontSize: 12, fontWeight: 700, padding: "6px 14px", cursor: "pointer", whiteSpace: "nowrap" }}>
           Feito
         </button>
       )}
@@ -1331,10 +1359,10 @@ function SelectGrid(props) {
 var StatCard = memo(function StatCard(props) {
   var color = props.color || T.orange;
   return (
-    <Card animate={false} style={{ padding: 16, textAlign: "center" }}>
-      {props.icon && <div style={{ fontSize: 20, marginBottom: 4 }}>{props.icon}</div>}
-      <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 26, fontWeight: 900, color: color }}>{props.value}</div>
-      <p style={{ fontSize: 11, color: T.text2, marginTop: 4 }}>{props.label}</p>
+    <Card animate={false} style={{ padding: 18, textAlign: "center" }}>
+      {props.icon && <div style={{ fontSize: 22, marginBottom: 8 }}>{props.icon}</div>}
+      <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 32, fontWeight: 900, color: color, lineHeight: 1 }}>{props.value}</div>
+      <p style={{ fontSize: 11, color: T.text2, marginTop: 6, fontWeight: 500 }}>{props.label}</p>
     </Card>
   );
 });
@@ -1396,7 +1424,7 @@ var ExerciseCard = memo(function ExerciseCard(props) {
         <div style={{ marginTop: 13, paddingTop: 13, borderTop: "1px solid " + T.border, animation: "fadeUp 0.18s ease" }}>
           <p style={{ fontSize: 12, color: T.text2, lineHeight: 1.65, marginBottom: ex.videoUrl ? 10 : 0 }}>{ex.instructions}</p>
           {ex.videoUrl && (
-            <a href={ex.videoUrl} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 6, color: T.orange, fontSize: 12, fontWeight: 700, textDecoration: "none", background: T.orangeGl, padding: "6px 12px", borderRadius: 9, border: "1px solid rgba(255,107,26,0.22)" }} onClick={function(e) { e.stopPropagation(); }}>
+            <a href={ex.videoUrl} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 6, color: T.orange, fontSize: 12, fontWeight: 700, textDecoration: "none", background: T.orangeGl, padding: "6px 12px", borderRadius: 9, border: "1px solid rgba(255,92,0,0.22)" }} onClick={function(e) { e.stopPropagation(); }}>
               Ver demonstração ↗
             </a>
           )}
@@ -1408,7 +1436,7 @@ var ExerciseCard = memo(function ExerciseCard(props) {
 
 var ScreenHeader = memo(function ScreenHeader(props) {
   return (
-    <div style={{ padding: "52px 20px 18px", borderBottom: "1px solid " + T.border, background: "linear-gradient(180deg, rgba(255,107,26,0.04) 0%, transparent 100%)" }}>
+    <div style={{ padding: "52px 20px 18px", borderBottom: "1px solid " + T.border, background: "linear-gradient(180deg, rgba(255,92,0,0.04) 0%, transparent 100%)" }}>
       <Row justify="space-between" align="flex-start">
         <Col gap={3}>
           <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 26, fontWeight: 800, color: T.text, letterSpacing: "-0.01em", lineHeight: 1 }}>{props.title}</div>
@@ -1442,15 +1470,24 @@ var LoadingDots = memo(function LoadingDots() {
 });
 
 var Nav = memo(function Nav(props) {
+  var NAVS = [
+    { id: "home",      label: "Início",   svg: "M3 12L12 3L21 12V20A1 1 0 0120 21H15V16H9V21H4A1 1 0 013 20V12Z" },
+    { id: "workout",   label: "Treinos",  svg: "M6.5 6.5L17.5 17.5M6.5 17.5L17.5 6.5M4 12H20M12 4V20" },
+    { id: "nutrition", label: "Nutrição", svg: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" },
+    { id: "progress",  label: "Evolução", svg: "M3 3V21H21M7 16L11 12L15 16L21 9" },
+    { id: "coach",     label: "Coach",    svg: "M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z" },
+  ];
   return (
-    <div style={{ position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 430, background: T.surface, borderTop: "1px solid " + T.border, display: "flex", paddingTop: 10, paddingBottom: 20, zIndex: 100 }}>
-      {NAV_ITEMS.map(function(item) {
+    <div style={{ position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 430, background: T.surface, borderTop: "1px solid " + T.border, display: "flex", paddingTop: 10, paddingBottom: 22, zIndex: 100, backdropFilter: "blur(12px)" }}>
+      {NAVS.map(function(item) {
         var active = props.screen === item.id;
         return (
-          <div key={item.id} onClick={function() { props.go(item.id); }} style={{ flex: 1, textAlign: "center", cursor: "pointer", transition: "opacity 0.2s" }}>
-            <div style={{ fontSize: 20, marginBottom: 3, filter: active ? "none" : "grayscale(100%)", opacity: active ? 1 : 0.35, transition: "filter 0.2s, opacity 0.2s" }}>{item.icon}</div>
-            <span style={{ display: "block", fontSize: 9, color: active ? T.orange : T.text3, fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase", transition: "color 0.2s" }}>{item.label}</span>
-            {active && <div style={{ width: 16, height: 2, background: T.orange, borderRadius: 1, margin: "3px auto 0", boxShadow: "0 0 6px " + T.orange + "88" }} />}
+          <div key={item.id} onClick={function() { props.go(item.id); }} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4, cursor: "pointer", position: "relative" }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={active ? T.orange : T.text3} strokeWidth={active ? 2.2 : 1.8} strokeLinecap="round" strokeLinejoin="round" style={{ transition: "stroke 0.2s" }}>
+              <path d={item.svg} />
+            </svg>
+            <span style={{ fontSize: 9, color: active ? T.orange : T.text3, fontWeight: active ? 700 : 500, letterSpacing: "0.04em", transition: "color 0.2s" }}>{item.label}</span>
+            {active && <div style={{ position: "absolute", top: -11, left: "50%", transform: "translateX(-50%)", width: 20, height: 2, background: T.orange, borderRadius: "0 0 2px 2px", boxShadow: "0 2px 8px " + T.orange + "88" }} />}
           </div>
         );
       })}
@@ -1598,18 +1635,22 @@ function AuthScreen() {
 
   return (
     <div style={{ minHeight: "100vh", background: T.bg, display: "flex", flexDirection: "column", justifyContent: "center", padding: "40px 24px", position: "relative", overflow: "hidden" }}>
-      <div style={{ position: "absolute", top: -120, left: "50%", transform: "translateX(-50%)", width: 400, height: 400, background: "radial-gradient(circle, rgba(255,107,26,0.08) 0%, transparent 65%)", pointerEvents: "none" }} />
+      <div style={{ position: "absolute", top: -140, left: "50%", transform: "translateX(-50%)", width: 420, height: 420, background: "radial-gradient(circle, rgba(255,92,0,0.07) 0%, transparent 65%)", pointerEvents: "none" }} />
       <div style={{ textAlign: "center", marginBottom: 44 }}>
-        <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 64, height: 64, background: "linear-gradient(135deg," + T.orange + "," + T.orangeHi + ")", borderRadius: 18, fontSize: 28, marginBottom: 16, boxShadow: "0 8px 32px rgba(255,107,26,0.35)" }}>⚡</div>
-        <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 44, fontWeight: 900, color: T.text, letterSpacing: -1, lineHeight: 1 }}>
+        <div style={{ display: "inline-block", marginBottom: 18, position: "relative" }}>
+          <div style={{ width: 80, height: 80, background: "linear-gradient(135deg, #1A0800 0%, #2A1200 100%)", borderRadius: 22, border: "1px solid rgba(255,92,0,0.3)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 8px 40px rgba(255,92,0,0.25), inset 0 1px 0 rgba(255,92,0,0.2)" }}>
+            <span style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 48, fontWeight: 900, color: T.orange, lineHeight: 1, letterSpacing: "-2px" }}>F</span>
+          </div>
+        </div>
+        <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 48, fontWeight: 900, color: T.text, letterSpacing: "-1px", lineHeight: 1 }}>
           FIT<span style={{ color: T.orange }}>PRO</span>
         </div>
-        <p style={{ fontSize: 13, color: T.text3, marginTop: 6, fontWeight: 500, letterSpacing: "0.04em" }}>TREINE HOJE · SUPERE AMANHÃ</p>
+        <p style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 15, color: T.text3, marginTop: 6, fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" }}>Treine Hoje · Supere Amanhã</p>
       </div>
-      <div style={{ display: "flex", background: T.surface, borderRadius: 13, padding: 4, marginBottom: 28, border: "1px solid " + T.border }}>
+      <div style={{ background: T.surface, border: "1px solid " + T.border, borderRadius: 16, padding: 5, marginBottom: 28, display: "flex", gap: 4 }}>
         {["login","register"].map(function(m) {
           return (
-            <div key={m} onClick={function() { switchMode(m); }} style={{ flex: 1, textAlign: "center", padding: "11px 0", background: mode === m ? T.orange : "transparent", borderRadius: 10, cursor: "pointer", transition: "background 0.2s", color: mode === m ? "#fff" : T.text3, fontWeight: 700, fontSize: 14, letterSpacing: "0.01em" }}>
+            <div key={m} onClick={function() { switchMode(m); }} style={{ flex: 1, textAlign: "center", padding: "12px 0", background: mode === m ? T.orange : "transparent", borderRadius: 12, cursor: "pointer", transition: "background 0.2s", color: mode === m ? "#fff" : T.text3, fontWeight: 700, fontSize: 14, letterSpacing: "0.02em" }}>
               {m === "login" ? "Entrar" : "Cadastrar"}
             </div>
           );
@@ -1617,11 +1658,11 @@ function AuthScreen() {
       </div>
       <Col gap={14}>
         {mode === "register" && <FInput label="Nome completo" value={name} onChange={setName} placeholder="João Silva" icon="👤" />}
-        <FInput label="E-mail" value={email} onChange={setEmail} type="email" placeholder="joao@email.com" icon="✉️" />
+        <FInput label="E-mail" value={email} onChange={setEmail} type="email" placeholder="seu@email.com" icon="✉️" />
         <FInput label="Senha"  value={pass}  onChange={setPass}  type="password" placeholder="••••••••" icon="🔒" />
         {err && <p style={{ fontSize: 13, color: T.red, textAlign: "center" }}>{err}</p>}
         <Btn onPress={submit} disabled={loading} loading={loading} full size="lg" style={{ marginTop: 8 }}>
-          {mode === "login" ? "Entrar na conta" : "Criar conta grátis"}
+          {mode === "login" ? "Entrar" : "Criar Conta Grátis"}
         </Btn>
       </Col>
       {mode === "register" && (
@@ -1909,166 +1950,205 @@ function HomeScreen(props) {
   var lvl   = xpToLevel(xp);
   var streak = progress.trained;
 
+
+  var ringPct = Math.min(goalProgress.pct, 100);
+  var ringCirc = 251;
+  var ringOffset = ringCirc - (ringCirc * ringPct / 100);
+
   return (
-    <div style={{ minHeight: "100vh", background: T.bg, paddingBottom: 90 }}>
+    <div style={{ minHeight: "100vh", background: T.bg, paddingBottom: 100 }}>
       <XPPopup xp={XP_MISSION_DONE} visible={xpPop} />
 
-      {/* Hero header */}
-      <div style={{ padding: "52px 20px 20px", background: "linear-gradient(180deg, rgba(255,107,26,0.07) 0%, rgba(255,107,26,0.02) 60%, " + T.bg + " 100%)", borderBottom: "1px solid " + T.border, position: "relative", overflow: "hidden" }}>
-        <div style={{ position: "absolute", top: -80, right: -80, width: 280, height: 280, background: "radial-gradient(circle, rgba(255,107,26,0.1) 0%, transparent 70%)", pointerEvents: "none" }} />
-        <Row justify="space-between" align="flex-start" style={{ marginBottom: 18 }}>
-          <Col gap={2}>
-            <span style={{ fontSize: 11, color: T.text3, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" }}>{fmt.dateLabel()}</span>
-            <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 28, fontWeight: 800, color: T.text, lineHeight: 1, letterSpacing: "-0.01em" }}>
-              Olá, {fmt.firstName(user && user.name)} 👊
+      {/* HEADER */}
+      <div style={{ padding: "52px 20px 0", background: "linear-gradient(180deg, rgba(255,92,0,0.06) 0%, transparent 100%)", position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", top: -100, right: -60, width: 300, height: 300, background: "radial-gradient(circle, rgba(255,92,0,0.09) 0%, transparent 65%)", pointerEvents: "none" }} />
+        <Row justify="space-between" align="flex-start" style={{ marginBottom: 20 }}>
+          <Col gap={3}>
+            <span style={{ fontSize: 11, color: T.text3, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase" }}>{fmt.dateLabel()}</span>
+            <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 30, fontWeight: 800, color: T.text, lineHeight: 1, letterSpacing: "0.01em" }}>
+              Olá, {fmt.firstName(user && user.name)}! 👊
             </div>
+            <span style={{ fontSize: 12, color: T.text2, fontWeight: 500 }}>Pronto para mais um treino?</span>
           </Col>
-          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-            <FTag color={isPro ? T.orange : T.text3}>{isPro ? "PRO" : "FREE"}</FTag>
+          <div onClick={function() { go("settings"); }} style={{ width: 38, height: 38, background: T.surface2, border: "1px solid " + T.border2, borderRadius: 11, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0 }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={T.text2} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
           </div>
         </Row>
 
-        {/* Streak + Level row */}
-        <Row gap={8} style={{ marginBottom: 14 }}>
-          <StreakBadge count={streak} />
-          <div style={{ flex: 1, background: T.surface, border: "1px solid " + T.border, borderRadius: 13, padding: "10px 12px" }}>
-            <Row gap={8} align="center">
-              <div style={{ width: 30, height: 30, borderRadius: 8, background: "linear-gradient(135deg," + T.purple + ",#6D28D9)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Barlow Condensed',sans-serif", fontSize: 16, fontWeight: 900, color: "#fff", boxShadow: "0 2px 10px rgba(139,92,246,0.35)", flexShrink: 0 }}>{lvl}</div>
-              <Col gap={1}>
-                <span style={{ fontSize: 12, fontWeight: 700, color: T.text }}>{getLevelTitle(lvl)}</span>
-                <span style={{ fontSize: 9, color: T.text3, fontWeight: 500 }}>{xp} XP total</span>
-              </Col>
-            </Row>
-          </div>
-          <div style={{ background: T.surface, border: "1px solid " + T.border, borderRadius: 13, padding: "10px 14px", textAlign: "center", minWidth: 60 }}>
-            <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 18, fontWeight: 900, color: T.orange, lineHeight: 1 }}>{goalProgress.pct}%</div>
-            <span style={{ fontSize: 9, color: T.text3, fontWeight: 500 }}>da meta</span>
-          </div>
-        </Row>
-
-        {/* XP bar compact */}
-        <XPBar xp={xp} />
-      </div>
-
-      <div style={{ padding: "16px 20px 0" }}>
-        {/* Smart daily message */}
-        <div style={{ marginBottom: 14, padding: "12px 16px", background: T.orangeGl, borderRadius: 12, border: "1px solid " + T.orange + "22" }}>
-          <Row gap={8}>
-            <span style={{ fontSize: 16 }}>💡</span>
-            <span style={{ fontSize: 13, color: T.text, lineHeight: 1.5 }}>{dailyMsg}</span>
+        {/* PROGRESS CARD with ring */}
+        <div style={{ background: "linear-gradient(135deg, rgba(255,92,0,0.14) 0%, rgba(255,92,0,0.04) 60%, " + T.surface + " 100%)", border: "1px solid rgba(255,92,0,0.24)", borderRadius: 22, padding: 20, marginBottom: 0, position: "relative", overflow: "hidden" }}>
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "1px", background: "linear-gradient(90deg, transparent 5%, " + T.orange + " 50%, transparent 95%)", opacity: 0.7 }} />
+          <Row justify="space-between" align="flex-start" style={{ marginBottom: 8 }}>
+            <span style={{ fontSize: 10, color: T.orange, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" }}>Seu Progresso</span>
+            <span onClick={function() { go("progress"); }} style={{ fontSize: 11, color: T.orange, fontWeight: 600, cursor: "pointer" }}>Ver mais ›</span>
+          </Row>
+          <Row gap={16} align="flex-start">
+            <div style={{ position: "relative", width: 84, height: 84, flexShrink: 0 }}>
+              <svg width="84" height="84" viewBox="0 0 100 100" style={{ transform: "rotate(-90deg)" }}>
+                <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="9" />
+                <circle cx="50" cy="50" r="40" fill="none" stroke={T.orange} strokeWidth="9"
+                  strokeDasharray={251} strokeDashoffset={ringOffset}
+                  strokeLinecap="round"
+                  style={{ transition: "stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1)" }} />
+              </svg>
+              <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+                <span style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 24, fontWeight: 900, color: T.text, lineHeight: 1 }}>{ringPct}<span style={{ fontSize: 13 }}>%</span></span>
+              </div>
+            </div>
+            <Col gap={10} style={{ flex: 1 }}>
+              <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid " + T.border, borderRadius: 12, padding: "10px 14px" }}>
+                <Row gap={8}>
+                  <span style={{ fontSize: 14 }}>🏋️</span>
+                  <Col gap={1}>
+                    <span style={{ fontSize: 9, color: T.text3, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase" }}>Treinos esta semana</span>
+                    <span style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 20, fontWeight: 900, color: T.text, lineHeight: 1 }}>{progress.trained} <span style={{ fontSize: 12, color: T.text3, fontWeight: 500 }}>/ {(profile && profile.days) || 3}</span></span>
+                  </Col>
+                </Row>
+              </div>
+              <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid " + T.border, borderRadius: 12, padding: "10px 14px" }}>
+                <Row gap={8}>
+                  <span style={{ fontSize: 14 }}>🔥</span>
+                  <Col gap={1}>
+                    <span style={{ fontSize: 9, color: T.text3, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase" }}>Calorias queimadas</span>
+                    <span style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 20, fontWeight: 900, color: T.text, lineHeight: 1 }}>{(progress.trained * 380).toLocaleString()} <span style={{ fontSize: 10, color: T.text3 }}>kcal</span></span>
+                  </Col>
+                </Row>
+              </div>
+            </Col>
           </Row>
         </div>
+      </div>
 
-        {/* Alerts */}
+      <div style={{ padding: "18px 20px 0" }}>
+        {/* ALERTS */}
         {routine && routine.sportsToday && (
-          <div style={{ marginBottom: 10, padding: "10px 14px", background: T.blue + "11", borderRadius: 12, border: "1px solid " + T.blue + "33" }}>
+          <div style={{ marginBottom: 12, padding: "10px 14px", background: T.blue + "12", borderRadius: 12, border: "1px solid " + T.blue + "25" }}>
             <Row gap={8}><span>🏀</span><span style={{ fontSize: 13, color: T.blue }}>{routine.sportsToday} hoje — pernas reduzidas no treino</span></Row>
           </div>
         )}
         {routine && routine.sleepHours && Number(routine.sleepHours) < 6 && (
-          <div style={{ marginBottom: 10, padding: "10px 14px", background: T.yellow + "11", borderRadius: 12, border: "1px solid " + T.yellow + "33" }}>
+          <div style={{ marginBottom: 12, padding: "10px 14px", background: T.yellow + "12", borderRadius: 12, border: "1px solid " + T.yellow + "25" }}>
             <Row gap={8}><span>😴</span><span style={{ fontSize: 13, color: T.yellow }}>Sono baixo — intensidade reduzida hoje</span></Row>
           </div>
         )}
 
-        {/* TODAY'S WORKOUT — main CTA */}
+        {/* DAILY MSG */}
+        <div style={{ marginBottom: 16, padding: "12px 16px", background: T.orangeGl, borderRadius: 14, border: "1px solid rgba(255,92,0,0.16)" }}>
+          <Row gap={10}><span style={{ fontSize: 17, flexShrink: 0 }}>💡</span><span style={{ fontSize: 13, color: T.text, lineHeight: 1.55, fontWeight: 500 }}>{dailyMsg}</span></Row>
+        </div>
+
+        {/* NEXT WORKOUT */}
         {todayWorkout ? (
           <>
-            <p style={{ fontSize: 10, color: T.text3, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 10 }}>Treino de Hoje</p>
-            <div onClick={function() { go("workout"); }} style={{ background: todayLog && todayLog.completed ? T.surface : "linear-gradient(135deg, rgba(255,107,26,0.12) 0%, rgba(255,107,26,0.04) 100%)", border: "1px solid " + (todayLog && todayLog.completed ? T.border : "rgba(255,107,26,0.28)"), borderRadius: 18, padding: 18, cursor: "pointer", marginBottom: 16, boxShadow: todayLog && todayLog.completed ? "none" : "0 4px 24px rgba(255,107,26,0.1)", transition: "all 0.2s", position: "relative", overflow: "hidden" }}>
-              {!todayLog && <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "1px", background: "linear-gradient(90deg, transparent 5%, " + T.orange + " 50%, transparent 95%)", opacity: 0.5 }} />}
+            <Row justify="space-between" align="center" style={{ marginBottom: 10 }}>
+              <span style={{ fontSize: 10, color: T.text3, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" }}>Próximo Treino</span>
+              <span onClick={function() { go("workout"); }} style={{ fontSize: 11, color: T.orange, fontWeight: 600, cursor: "pointer" }}>Ver todos ›</span>
+            </Row>
+            <div style={{ background: T.surface, border: "1px solid " + T.border2, borderRadius: 20, padding: 20, marginBottom: 16, boxShadow: "0 4px 28px rgba(0,0,0,0.35)", position: "relative", overflow: "hidden" }}>
+              {!todayLog && <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "1px", background: "linear-gradient(90deg, transparent 5%, " + T.orange + " 50%, transparent 95%)", opacity: 0.6 }} />}
               {(todayWorkout.adaptedFor || todayWorkout.sleepAlert) && (
-                <div style={{ background: T.blue + "14", border: "1px solid " + T.blue + "22", borderRadius: 10, padding: "5px 10px", marginBottom: 10 }}>
+                <div style={{ background: T.blue + "12", border: "1px solid " + T.blue + "20", borderRadius: 9, padding: "5px 10px", marginBottom: 10 }}>
                   <span style={{ fontSize: 11, color: T.blue }}>{todayWorkout.adaptedFor || todayWorkout.sleepAlert}</span>
                 </div>
               )}
-              <Row justify="space-between" align="center" style={{ marginBottom: 14 }}>
+              <Row gap={14} align="center" style={{ marginBottom: 16 }}>
+                <div style={{ width: 52, height: 52, borderRadius: 15, background: todayLog && todayLog.completed ? T.surface3 : T.orangeGl2, border: "1px solid " + (todayLog && todayLog.completed ? T.border : "rgba(255,92,0,0.3)"), display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26, flexShrink: 0 }}>🏋️</div>
                 <Col gap={4}>
-                  <span style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 20, fontWeight: 800, color: todayLog && todayLog.completed ? T.text2 : T.text, letterSpacing: "-0.01em" }}>{todayWorkout.name}</span>
-                  <span style={{ fontSize: 11, color: T.text3 }}>{todayWorkout.exercises.length} exercícios · ~{todayWorkout.duration}min</span>
+                  <span style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 22, fontWeight: 800, color: todayLog && todayLog.completed ? T.text2 : T.text, letterSpacing: "0.01em", lineHeight: 1 }}>{todayWorkout.name}</span>
+                  <Row gap={6}>
+                    <span style={{ fontSize: 11, color: T.text3 }}>Hoje</span>
+                    {bestTime && <><span style={{ color: T.text3, fontSize: 11 }}>·</span><span style={{ fontSize: 11, color: T.text3 }}>{bestTime}</span></>}
+                    <span style={{ color: T.text3, fontSize: 11 }}>· ⏱ {todayWorkout.duration}min</span>
+                  </Row>
                 </Col>
-                <div style={{ width: 46, height: 46, borderRadius: 13, background: todayLog && todayLog.completed ? T.border2 : "linear-gradient(135deg," + T.orange + "," + T.orangeHi + ")", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, color: "#fff", boxShadow: todayLog && todayLog.completed ? "none" : "0 4px 14px rgba(255,107,26,0.35)", flexShrink: 0 }}>
-                  {todayLog && todayLog.completed ? "✓" : "▶"}
-                </div>
               </Row>
-              <Bar value={todayLog && todayLog.completed ? 100 : 0} />
-              <Row justify="space-between" style={{ marginTop: 8 }}>
-                <span style={{ fontSize: 11, color: T.text3 }}>{todayLog && todayLog.completed ? "Concluído! Excelente trabalho." : "Toque para começar"}</span>
-                {!todayLog && <span style={{ fontSize: 11, color: T.orange, fontWeight: 700 }}>+{XP_WORKOUT_COMPLETE} XP</span>}
-              </Row>
+              <div onClick={function() { go(todayLog && todayLog.completed ? "checkin" : "workout"); }}>
+                <Btn onPress={function() {}} full size="lg" style={{ pointerEvents: "none" }}>
+                  {todayLog && todayLog.completed ? "✓ Treino Concluído" : "Iniciar Treino ▶"}
+                </Btn>
+              </div>
+              {!todayLog && (
+                <Row justify="space-between" style={{ marginTop: 10 }}>
+                  <span style={{ fontSize: 11, color: T.text3 }}>{todayWorkout.exercises.length} exercícios</span>
+                  <span style={{ fontSize: 11, color: T.orange, fontWeight: 700 }}>+{XP_WORKOUT_COMPLETE} XP</span>
+                </Row>
+              )}
             </div>
           </>
         ) : (
           <EmptyState icon="🏋️" title="Sem treino gerado" body="Atualize seu perfil para gerar um plano personalizado." action="Configurar perfil" onAction={function() { go("settings"); }} />
         )}
 
-        {/* NORTH STAR — Goal journey */}
+        {/* 4-GRID SHORTCUTS */}
+        <Row justify="space-between" align="center" style={{ marginBottom: 10 }}>
+          <span style={{ fontSize: 10, color: T.text3, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" }}>Atalhos</span>
+        </Row>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 20 }}>
+          {[
+            { icon: "🏋️", label: "Treinos",  screen: "workout"   },
+            { icon: "✅", label: "Check-in", screen: "checkin"   },
+            { icon: "🥗", label: "Nutrição", screen: "nutrition" },
+            { icon: "📈", label: "Evolução", screen: "progress"  },
+          ].map(function(a) {
+            return (
+              <div key={a.label} onClick={function() { go(a.screen); }} style={{ background: T.surface, border: "1px solid " + T.border, borderRadius: 16, padding: "14px 6px", cursor: "pointer", textAlign: "center", transition: "background 0.15s, border-color 0.15s" }}>
+                <div style={{ fontSize: 22, marginBottom: 6 }}>{a.icon}</div>
+                <span style={{ fontSize: 10, fontWeight: 600, color: T.text2 }}>{a.label}</span>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* XP BAR */}
+        <div style={{ marginBottom: 16 }}><XPBar xp={xp} /></div>
+
+        {/* NORTH STAR GOAL */}
         {logs.length >= 2 && (
           <div style={{ marginBottom: 16 }}>
-            <p style={{ fontSize: 11, color: T.text3, fontWeight: 700, letterSpacing: "0.08em", marginBottom: 10 }}>SUA JORNADA</p>
+            <p style={{ fontSize: 10, color: T.text3, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 10 }}>Sua Jornada</p>
             <GoalJourneyBar progress={goalProgress} goal={profile && profile.goal} />
           </div>
         )}
 
         {/* DAILY MISSIONS */}
         <div style={{ marginBottom: 16 }}>
-          <Row justify="space-between" style={{ marginBottom: 10 }}>
-            <p style={{ fontSize: 11, color: T.text3, fontWeight: 700, letterSpacing: "0.08em" }}>MISSOES DO DIA</p>
-            <span style={{ fontSize: 11, color: T.purple, fontWeight: 600 }}>
+          <Row justify="space-between" align="center" style={{ marginBottom: 12 }}>
+            <span style={{ fontSize: 10, color: T.text3, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" }}>Missões do Dia</span>
+            <span style={{ fontSize: 11, color: T.purple, fontWeight: 700 }}>
               {missions.filter(function(m) { return missionsDoneToday[m.id] === fmt.date(); }).length}/{missions.length} completas
             </span>
           </Row>
           <Col gap={8}>
             {missions.map(function(m) {
               var done = missionsDoneToday[m.id] === fmt.date();
-              return (
-                <MissionCard
-                  key={m.id}
-                  mission={m}
-                  done={done}
-                  onDone={function() { completeMission(m.id); }}
-                />
-              );
+              return <MissionCard key={m.id} mission={m} done={done} onDone={function() { completeMission(m.id); }} />;
             })}
           </Col>
         </div>
 
-        {/* QUICK ACTIONS — reduced, less noise */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 20 }}>
-          {[
-            { icon: "🤖", label: "Coach IA",  screen: "coach",   pro: true  },
-            { icon: "✅", label: "Check-in",  screen: "checkin", pro: false },
-            { icon: "🗓️", label: "Planejar",  screen: "planner", pro: true  },
-          ].map(function(a) {
-            return (
-              <Card key={a.label} onClick={function() { go(a.screen); }} style={{ padding: 14, cursor: "pointer", textAlign: "center" }} animate={false}>
-                <Row justify="space-between" align="flex-start" style={{ marginBottom: 6 }}>
-                  <span style={{ fontSize: 24 }}>{a.icon}</span>
-                  {a.pro && !isPro && <Badge color={T.orange} style={{ fontSize: 8 }}>PRO</Badge>}
-                </Row>
-                <span style={{ fontSize: 12, fontWeight: 700, color: T.text }}>{a.label}</span>
-              </Card>
-            );
-          })}
-        </div>
-
-        {/* UPSELL contextual (smart — only after user has some data) */}
+        {/* UPSELL */}
         {!isPro && logs.length >= 3 && (
-          <Card style={{ background: "linear-gradient(135deg," + T.orangeLo + ",#1a0900)", border: "1px solid " + T.orange + "44", marginBottom: 16 }} animate={false}>
-            <Row gap={12}>
-              <span style={{ fontSize: 28 }}>🔓</span>
-              <Col gap={3} style={{ flex: 1 }}>
-                <span style={{ fontSize: 13, fontWeight: 700, color: T.text }}>Ative o Pro agora</span>
-                <span style={{ fontSize: 11, color: T.text2 }}>IA analisa seu historico e gera treino 100% unico</span>
-              </Col>
+          <div style={{ background: "linear-gradient(135deg, rgba(255,92,0,0.13) 0%, rgba(255,92,0,0.04) 100%)", border: "1px solid rgba(255,92,0,0.26)", borderRadius: 20, padding: 20, marginBottom: 16, position: "relative", overflow: "hidden" }}>
+            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "1px", background: "linear-gradient(90deg, transparent 5%, " + T.orange + " 50%, transparent 95%)", opacity: 0.6 }} />
+            <Row gap={14} style={{ marginBottom: 14 }}>
+              <span style={{ fontSize: 32 }}>🔓</span>
+              <Col gap={3}><span style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 18, fontWeight: 800, color: T.text }}>Ative o Pro Agora</span><span style={{ fontSize: 12, color: T.text2 }}>IA analisa seu histórico e gera treino 100% único</span></Col>
             </Row>
-            <Btn onPress={function() { go("paywall"); }} full variant="fill" style={{ marginTop: 12 }}>Ver Planos — 7 dias gratis</Btn>
-          </Card>
+            <Btn onPress={function() { go("paywall"); }} full size="lg">Ver Planos — 7 dias grátis</Btn>
+          </div>
         )}
+
+        {/* COACH SHORTCUT */}
+        <div onClick={function() { go("coach"); }} style={{ background: T.purpleGl, border: "1px solid rgba(124,77,255,0.2)", borderRadius: 16, padding: "14px 18px", marginBottom: 16, cursor: "pointer", display: "flex", alignItems: "center", gap: 14 }}>
+          <div style={{ width: 44, height: 44, background: "linear-gradient(135deg," + T.purple + ",#5B21B6)", borderRadius: 13, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0, boxShadow: "0 4px 14px rgba(124,77,255,0.35)" }}>🤖</div>
+          <Col gap={2} style={{ flex: 1 }}><span style={{ fontSize: 14, fontWeight: 700, color: T.text }}>Coach FitPro IA</span><span style={{ fontSize: 12, color: T.text2 }}>Tire dúvidas sobre treino e alimentação</span></Col>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={T.text3} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
       </div>
     </div>
   );
 }
+
 
 // ─── SCREEN: WORKOUT ──────────────────────────────────────────────────────────
 function WorkoutScreen(props) {
@@ -2977,9 +3057,11 @@ function Router() {
 
   if (status === "loading") return (
     <div style={{ minHeight: "100vh", background: T.bg, display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <Col gap={16} style={{ alignItems: "center" }}>
-        <div style={{ width: 68, height: 68, background: "linear-gradient(135deg," + T.orange + "," + T.orangeHi + ")", borderRadius: 18, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 30, boxShadow: "0 8px 32px rgba(255,107,26,0.4)", animation: "scaleIn 0.3s ease" }}>⚡</div>
-        <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 32, fontWeight: 900, color: T.text, letterSpacing: -1 }}>FIT<span style={{ color: T.orange }}>PRO</span></div>
+      <Col gap={20} style={{ alignItems: "center" }}>
+        <div style={{ width: 72, height: 72, background: "linear-gradient(135deg, #1A0800, #2A1200)", borderRadius: 22, border: "1px solid rgba(255,92,0,0.3)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 8px 40px rgba(255,92,0,0.22)", animation: "scaleIn 0.3s ease" }}>
+          <span style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 50, fontWeight: 900, color: T.orange, lineHeight: 1 }}>F</span>
+        </div>
+        <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 36, fontWeight: 900, color: T.text, letterSpacing: -1 }}>FIT<span style={{ color: T.orange }}>PRO</span></div>
         <SkeletonCard />
       </Col>
     </div>
